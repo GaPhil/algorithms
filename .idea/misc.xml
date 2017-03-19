@@ -6,9 +6,6 @@
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
-  <component name="RebarSettings">
-    <rebarPath>/usr/local/Cellar/erlang/19.2/lib/erlang</rebarPath>
-  </component>
   <component name="masterDetails">
     <states>
       <state key="ProjectJDKs.UI">
