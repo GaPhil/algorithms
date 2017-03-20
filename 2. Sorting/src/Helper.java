@@ -1,16 +1,16 @@
 public class Helper {
 
-    private static boolean less(Comparable x, Comparable y) {
+    public static boolean less(Comparable x, Comparable y) {
         return x.compareTo(y) < 0;
     }
 
-    private static void exchange(Comparable[] a, int i, int j) {
+    public static void exchange(Comparable[] a, int i, int j) {
         Comparable t = a[i];
         a[i] = a[j];
         a[j] = t;
     }
 
-    private static void print(Comparable[] a) {
+    public static void print(Comparable[] a) {
         for (Comparable i : a) {
             System.out.print(i + " ");
         }
