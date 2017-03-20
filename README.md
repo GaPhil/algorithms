@@ -3,7 +3,10 @@
 This repository is based on the book by Robert Sedgewick and Kevin Wayne entitled *Algorithms*, fourth edition.
 
 **2. Sorting**
-- [ ] 2.1 Elementary Sorts
+- [x] 2.1 Elementary Sorts
+  - [x] Selection Sort
+  - [x] Insertion Sort
+  - [x] Shell Sort
 - [ ] 2.2 Merge Sort
 - [ ] 2.3 Quicksort
 - [ ] 2.4 Priority Queues
