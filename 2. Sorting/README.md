@@ -80,7 +80,7 @@ function unless *n* is huge.
 The table below summarizes the number of compares for a variety of sorting algorithms, as implemented 
 in the textbook. It includes leading constants but ignores lower-order terms.
 
-```markdown
+```
 |ALGORITHM     |IN PLACE|STABLE|BEST                       |AVERAGE             |WORST               |REMARKS|
 |--------------|:------:|:----:|:-------------------------:|: -----------------:|:------------------:|: ----:|
 |selection sort|x       |      |1/2 *n*<sup>2</sup>        |1/2 *n* <sup>2</sup>|1/2 *n* <sup>2</sup>|       |
@@ -88,6 +88,7 @@ in the textbook. It includes leading constants but ignores lower-order terms.
 |bubble sort   |x       |x     |*n*                        |1/2 *n* <sup>2</sup>|1/2 *n* <sup>2</sup>|       |
 |shellsort     |x       |      |1/2 *n* log<sub>3</sub> *n*|unknown             |c *n* <sup>3/2</sup>|       |
 |mergesort     |        |x     |1/2 *n* lg *n*             |*n* lg *n*          |*n* lg *n*          |       |
-|quicksort     |x       |      |*n* lg *n*                 |2 *n* lg *n*        |1/2 *n* <sup>2</sup>|       ||heapsort      |x       |      |*n* lg *n* <sup>*</sup>    |2 *n* lg *n*        |2 *n* lg *n*        |       |
+|quicksort     |x       |      |*n* lg *n*                 |2 *n* lg *n*        |1/2 *n* <sup>2</sup>|       |
+|heapsort      |x       |      |*n* lg *n* <sup>*</sup>    |2 *n* lg *n*        |2 *n* lg *n*        |       |
 ```
 <sup>*</sup> *n* lg *n* if all keys are distinct
