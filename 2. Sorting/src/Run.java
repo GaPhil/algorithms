@@ -1,12 +1,12 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public abstract class Run {
+public class Run {
 
     public static void main(String[] args) {
 
         Scanner reader = new Scanner(System.in);
-        System.out.println("Enter the values and confirm with '#': ");
+        System.out.println("Enter the values and press enter, confirm with '#': ");
 
         ArrayList<String> list = new ArrayList<>();
 
@@ -20,6 +20,7 @@ public abstract class Run {
 
         String[] a = list.toArray(new String[list.size()]);
         // call sorting algorithm
+        Shellsort.sort(a);
         assert Helper.isSorted(a);
         Helper.print(a);
     }

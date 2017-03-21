@@ -1,4 +1,4 @@
-public class ShellSort {
+public class Shellsort {
 
     public static Comparable[] sort(Comparable[] a) {
 
