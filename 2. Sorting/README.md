@@ -89,4 +89,5 @@ in the textbook. It includes leading constants but ignores lower-order terms.
 |mergesort     |        |x     |1/2 *n* lg *n*             |*n* lg *n*          |*n* lg *n*          |       |
 |quicksort     |x       |      |*n* lg *n*                 |2 *n* lg *n*        |1/2 *n* <sup>2</sup>|       |
 |heapsort      |x       |      |*n* lg *n* <sup>*</sup>    |2 *n* lg *n*        |2 *n* lg *n*        |       |
+
 <sup>*</sup> *n* lg *n* if all keys are distinct
