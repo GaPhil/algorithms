@@ -22,6 +22,9 @@ public class SelectionSort {
     }
 }
 ```
+For each `i`, this implementation puts the (`i`+1)st smallest item in `a[a]`. The entries to the left of position `i` 
+are the `i` smallest items in the array and are not examined again.
+
 Selection sort uses ~ *n*<sup>2</sup> / 2 compares and *n* exchanges to sort an array of length *n*.
 For each *i* from 0 to *n* - 1, there is one exchange and *n* - 1 - *i* compares, so the totals 
 are *n* exchanges and (*n* - 1) + (*n* - 2) + ... + 2 + 1 + 0 = *n*(*n* - 1) / 2 <br> ~ *n* <sup>2</sup> / 2 compares.
@@ -42,6 +45,10 @@ public class InsertionSort {
     }
 }
 ```
+For each `i` from 1 to `n`-1, exchange `a[i]` with the entries that are larger in `a[0]` through `a[i-1]`. As the index
+`i` travels from left to right, the entries to its left are in sorted order in the array, so the array is fully sorted 
+when `i` reaches the right end.
+
 Insertion Sort uses  ~ *n*<sup>2</sup> / 4 compares and ~ *n*<sup>2</sup> / 4 exchanges to sort a 
 randomly ordered array of length *n* with distinct keys, on average. The worst case is ~ *n*<sup>2</sup> / 2
 compares and ~ *n* <sup>2</sup> / 2 exchanges and the best case is *n* - 1 compares and 0 exchanges.
@@ -103,6 +110,11 @@ public class Merge {
     }
 }
 ```
+This method merges by first copying into the auxiliary array `aux[]` then merging back to `a[]`. In the merge (the 
+second `for` loop), there are four conditions:left half exhausted (take from the right), right half exhausted (take from
+the left), current key on right less than current key on left (take from the right), and current key on right greater 
+than or equal to current key on the left(take fro the left).
+
 ```java
 public class MergeSort {
 
