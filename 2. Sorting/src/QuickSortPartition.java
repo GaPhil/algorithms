@@ -1,11 +1,11 @@
-public class QuicksortPartition {
+public class QuickSortPartition {
 
-    public static int partition(Comparable[] a, int lo, int hi) {
+    static int partition(Comparable[] a, int lo, int hi) {
         int i = lo;
         int j = hi + 1;
         Comparable v = a[lo];
         while (true) {
-            while (Helper.less(a[i++], v)) {
+            while (Helper.less(a[++i], v)) {
                 if (i == hi) {
                     break;
                 }
@@ -18,8 +18,9 @@ public class QuicksortPartition {
             if (i >= j) {
                 break;
             }
+            Helper.exchange(a, i, j);
         }
-        Helper.exchange(a, i, j);
+        Helper.exchange(a, lo, j);
         return j;
     }
 }
