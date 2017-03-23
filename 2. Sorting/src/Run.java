@@ -8,21 +8,33 @@ public class Run {
         Scanner reader = new Scanner(System.in);
         System.out.println("Enter the values and press enter, confirm with '#': ");
 
-        ArrayList<String> list = new ArrayList<>();
+        ArrayList<Comparable> list = new ArrayList<>();
 
         while (true) {
             String key = reader.next();
+            Comparable value;
+            try {
+//                is an integer
+                value = Integer.parseInt(key);
+            } catch (NumberFormatException e) {
+//                not an integer
+                value = key;
+            }
+
             char x = key.charAt(0);
             int ascii = (int) x;
             if (ascii == 35) break;
-            list.add(key);
-// TODO     list.add(Integer.parseInt(key));
+            list.add(value);
         }
 
-        String[] a = list.toArray(new String[list.size()]);
-//      call sorting algorithm
-        Shellsort.sort(a);
-        assert Helper.isSorted(a);
-        Helper.print(a);
+        try {
+            Comparable[] a = list.toArray(new Comparable[list.size()]);
+//            call sorting algorithm
+            Shellsort.sort(a);
+            assert Helper.isSorted(a);
+            Helper.print(a);
+        } catch (ClassCastException e) {
+            System.out.println("ERROR: the provided values must be of the same type (strings or numbers)");
+        }
     }
 }
