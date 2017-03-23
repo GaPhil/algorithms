@@ -13,13 +13,14 @@ public class Run {
         while (true) {
             String key = reader.next();
             char x = key.charAt(0);
-            int ascii = (int)x;
+            int ascii = (int) x;
             if (ascii == 35) break;
             list.add(key);
+// TODO     list.add(Integer.parseInt(key));
         }
 
         String[] a = list.toArray(new String[list.size()]);
-        // call sorting algorithm
+//      call sorting algorithm
         Shellsort.sort(a);
         assert Helper.isSorted(a);
         Helper.print(a);
