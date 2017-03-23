@@ -1,3 +1,5 @@
+import java.util.Random;
+
 public class Helper {
 
     public static boolean less(Comparable x, Comparable y) {
@@ -10,18 +12,44 @@ public class Helper {
         a[j] = t;
     }
 
-    public static void print(Comparable[] a) {
+    static void print(Comparable[] a) {
         for (Comparable i : a) {
             System.out.print(i + " ");
         }
         System.out.println();
     }
 
-    public static boolean isSorted(Comparable[] a) {
+    static boolean isSorted(Comparable[] a) {
         for (int i = 0; i < a.length; i++) {
             if (less(a[i], a[i - 1]))
                 return false;
         }
         return true;
+    }
+
+    private static Random random;    // pseudo-random number generator
+
+    // static initializer
+    static {
+        long seed = System.currentTimeMillis();
+        random = new Random(seed);
+    }
+
+    private static int uniform(int n) {
+        if (n <= 0) throw new IllegalArgumentException("argument must be positive");
+        return random.nextInt(n);
+    }
+
+    static void shuffle(Object[] a) {
+        if (a == null) {
+            throw new IllegalArgumentException("argument array is null");
+        }
+        int n = a.length;
+        for (int i = 0; i < n; i++) {
+            int r = i + uniform(n - i);      // between i and n-1
+            Object temp = a[i];
+            a[i] = a[r];
+            a[r] = temp;
+        }
     }
 }
