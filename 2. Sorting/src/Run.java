@@ -30,7 +30,7 @@ public class Run {
         try {
             Comparable[] a = list.toArray(new Comparable[list.size()]);
 //            call sorting algorithm
-            Shellsort.sort(a);
+            QuickSort.sort(a);
             assert Helper.isSorted(a);
             Helper.print(a);
         } catch (ClassCastException e) {
