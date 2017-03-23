@@ -4,10 +4,12 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
 
 **2. Sorting**
 - [x] 2.1 Elementary Sorts
-  - [x] Selection Sort
-  - [x] Insertion Sort
-  - [x] Shell Sort
-- [ ] 2.2 Merge Sort
+  - [x] Selectionsort
+  - [x] Insertionsort
+  - [x] Shellsort
+- [x] 2.2 Mergesort
+  - [x] Top-down mergesort
+  - [x] Bottom-up mergesort
 - [ ] 2.3 Quicksort
 - [ ] 2.4 Priority Queues
 - [ ] Summary

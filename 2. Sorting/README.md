@@ -77,12 +77,16 @@ public class Shellsort {
     }
 }
 ```
+If we modify insertion sort to `h`-sort the array and add an outer loop to decrease the `h` through a sequence of 
+increments starting at an increment as large as a constant fraction of the array length and ending at 1, we are led to
+this compact shellsort implementation.
+
 The number of compares used by shellsort with the increments 1, 4, 13, 40, 121, 364, ... is bounded by a small
 multiple of *n* times the number of increments used Extensive experiments suggest that the average number of 
 compares per increment might be *n*<sup>1/5</sup>, but it is quite difficult to discern the growth in that 
 function unless *n* is huge.
 
-#### 2.2 Merge Sort
+#### 2.2 Mergesort
 
 ```java
 public class Merge {
@@ -113,7 +117,9 @@ public class Merge {
 This method merges by first copying into the auxiliary array `aux[]` then merging back to `a[]`. In the merge (the 
 second `for` loop), there are four conditions:left half exhausted (take from the right), right half exhausted (take from
 the left), current key on right less than current key on left (take from the right), and current key on right greater 
-than or equal to current key on the left(take fro the left).
+than or equal to current key on the left(take from the left).
+
+##### Top-down mergesort
 
 ```java
 public class MergeSort {
@@ -140,6 +146,14 @@ public class MergeSort {
     }
 }
 ```
+To sort a subarray `a[lo..hi]` we divide it into two parts: `a[lo..mid]` and `a[mid+1..hi]`, sort them independently 
+(via recursive calls), and merge the resulting ordered subarrays to produce the result.
+
+Top-down mergesort uses between 1/2 *n* lg *n* and *n* lg *n* compares to sort an array of length *n*. Top-down uses at
+most 6*n* lg *n* array accesses to sort an array of length *n*.
+
+##### Bottom-up mergesort
+
 ```java
 public class MergeSortBU {
 
@@ -157,7 +171,16 @@ public class MergeSortBU {
     }
 }
 ```
+Bottom-up mergesort consists of a sequence of passes over the whole array, doing `len`-by-`len` merges, starting with 
+`len` equal to 1 and doubling `len` on each pass. The final subarray is of length `len` only when the array length is 
+an even multiple of `len` (otherwise it is less than `len`).
 
+Bottom-up mergesrot uses between 1/2 *n* lg *n* and *n* lg *n* compares and at most 6*n* lg *n* array accesses to sort
+an array of length *n*.
+
+Mergesort is an asymptotically optimal compare-base sorting algorithm. That means *both the number of compares used by 
+mergesort in the worst case and the minimum number of compares that any compare-based sorting algorithm can guarantee 
+are ~ *n* lg *n*.*
 #### Summary
 
 The table below summarizes the number of compares for a variety of sorting algorithms, as implemented 
