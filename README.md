@@ -10,7 +10,10 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
 - [x] 2.2 Mergesort
   - [x] Top-down mergesort
   - [x] Bottom-up mergesort
-- [ ] 2.3 Quicksort
+- [x] 2.3 QuickSort
+  - [x] Quicksort partitioning
+  - [x] Quicksort
+  - [x] Quicksort with 3-way partitioning
 - [ ] 2.4 Priority Queues
 - [ ] Summary
 

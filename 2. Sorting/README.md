@@ -181,6 +181,110 @@ an array of length *n*.
 Mergesort is an asymptotically optimal compare-base sorting algorithm. That means *both the number of compares used by 
 mergesort in the worst case and the minimum number of compares that any compare-based sorting algorithm can guarantee 
 are ~ *n* lg *n*.*
+
+#### 2.3 QuickSort
+
+##### Quicksort partitioning
+```java
+public class QuickSortPartition {
+
+    private static int partition(Comparable[] a, int lo, int hi) {
+        int i = lo;
+        int j = hi + 1;
+        Comparable v = a[lo];
+        while (true) {
+            while (Helper.less(a[i++], v)) {
+                if (i == hi) {
+                    break;
+                }
+            }
+            while (Helper.less(v, a[--j])) {
+                if (j == lo) {
+                    break;
+                }
+            }
+            if (i >= j) {
+                break;
+            }
+        }
+        Helper.exchange(a, i, j);
+        return j;
+    }
+}
+```
+This code partitions on the item `v` in `a[lo]`. The main loop exists when the indices `i` and `j` cross. Within the 
+loop, we increment `i` while `a[i]` is less than `v` and decrement `j` while `a[j]` is greater than `v`, then do and 
+exchange to maintain the invariant property that no entries to the left of `i` are greater than `v` and no entries to
+the right of `j` are smaller than `v`. Once the indices meet, we complete the partitioning by exchanging `a[lo]` with 
+`a[j]` (thus leaving the partitioning value in `a[j]`).
+
+##### Quicksort
+
+```java
+public class QuickSort {
+
+    static Comparable[] sort(Comparable[] a) {
+
+        Helper.shuffle(a);
+        // for 2-way partition
+        // sort(a, 0, a.length - 1);
+        QuickSortPartition3Way.sort(a, 0, a.length - 1);
+        return a;
+    }
+
+    private static Comparable[] sort(Comparable[] a, int lo, int hi) {
+
+        if (hi <= lo) {
+            return a;
+        }
+        int j = QuickSortPartition.partition(a, lo, hi);
+        sort(a, lo, j - 1);
+        sort(a, j + 1, hi);
+        return a;
+    }
+}
+```
+Quicksort is a recursive program that sorts a subarray `a[lo..hi]` by using a `partition()` method that puts `a[j]` 
+into position and arranges the rest of the entries such that the recursive calls finish the sort.
+
+Quicksort uses ~ 2 *n* ln *n* compares (and one-sixth that many exchanges) on the average to sort and array of length
+*n* with distinct keys.
+
+##### Quicksort with 3-way partitioning 
+
+```java
+public class QuickSortPartition3Way {
+
+    public static Comparable[] sort(Comparable[] a, int lo, int hi) {
+
+        if (hi <= lo) {
+            return a;
+        }
+        int lt = lo;
+        int i = lo + 1;
+        int gt = hi;
+        Comparable v = a[lo];
+        while (i <= gt) {
+            int cmp = a[i].compareTo(v);
+            if (cmp < 0) {
+                Helper.exchange(a, lt++, i++);
+            } else if (cmp > 0) {
+                Helper.exchange(a, i, gt--);
+            } else i++;
+        }
+        sort(a, lo, lt - 1);
+        sort(a, gt + 1, hi);
+        return a;
+    }
+}
+```
+This sort code partitions to put keys equal to the partitioning element in place and thus does not have to include
+those keys in the subarrays for the recursive calls. It is far more efficient than the standard quicksort
+implementation for arrays with large numbers of duplicate keys.
+
+Quicksort with 3-way partitioning uses ~ (2 ln 2) *n H*  compares to sort *N* items, where *H* is the Shannon entropy,
+defined from the frequencies of key values. Note that *H* = lg *n* when the keys are all distinct.
+
 #### Summary
 
 The table below summarizes the number of compares for a variety of sorting algorithms, as implemented 
