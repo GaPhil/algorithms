@@ -428,14 +428,29 @@ during the sortdown by 2 lg *n*.
 The table below summarizes the number of compares for a variety of sorting algorithms, as implemented 
 in the textbook. It includes leading constants but ignores lower-order terms.
 
-|ALGORITHM     |IN PLACE|STABLE|BEST                       |AVERAGE            |WORST              |REMARKS|
-|--------------|:------:|:----:|:-------------------------:|:-----------------:|:-----------------:|:-----:|
-|selection sort|x       |      |1/2 *n*<sup>2</sup>        |1/2 *n*<sup>2</sup>|1/2 *n*<sup>2</sup>|       |
-|insertion sort|x       |x     |*n*                        |1/4 *n*<sup>2</sup>|1/2 *n*<sup>2</sup>|       |
-|bubble sort   |x       |x     |*n*                        |1/2 *n*<sup>2</sup>|1/2 *n*<sup>2</sup>|       |
-|shellsort     |x       |      |1/2 *n* log<sub>3</sub> *n*|unknown            |c *n*<sup>3/2</sup>|       |
-|mergesort     |        |x     |1/2 *n* lg *n*             |*n* lg *n*         |*n* lg *n*         |       |
-|quicksort     |x       |      |*n* lg *n*                 |2 *n* lg *n*       |1/2 *n*<sup>2</sup>|       |
-|heapsort      |x       |      |*n* lg *n* <sup>*</sup>    |2 *n* lg *n*       |2 *n* lg *n*       |       |
+ALGORITHM     |IN PLACE|STABLE|BEST                       |AVERAGE            |WORST              |EXTRA SPACE|REMARKS
+--------------|:------:|:----:|:-------------------------:|:-----------------:|:-----------------:|:---------:|:-----:
+selection sort|x       |      |1/2 *n*<sup>2</sup>        |1/2 *n*<sup>2</sup>|1/2 *n*<sup>2</sup>|1          |       
+insertion sort|x       |x     |*n*                        |1/4 *n*<sup>2</sup>|1/2 *n*<sup>2</sup>|1          |       
+bubble sort   |x       |x     |*n*                        |1/2 *n*<sup>2</sup>|1/2 *n*<sup>2</sup>|           |       
+shellsort     |x       |      |1/2 *n* log<sub>3</sub> *n*|unknown            |c *n*<sup>3/2</sup>|1          |       
+mergesort     |        |x     |1/2 *n* lg *n*             |*n* lg *n*         |*n* lg *n*         |*n*        |       
+quicksort     |x       |      |*n* lg *n*                 |2 *n* lg *n*       |1/2 *n*<sup>2</sup>|lg *n*     |       
+heapsort      |x       |      |*n* lg *n* <sup>*</sup>    |2 *n* lg *n*       |2 *n* lg *n*       |1          |       
 
 <sup>*</sup> *n* lg *n* if all keys are distinct
+
+Quicksort is the fastest general-purpose sort. 
+This hypothesis is supported by countless implementations of quicksort on countless computer systems since its
+invention decades ago. Generally the reason that quicksort is fastest is that it has only a few instrucitons in its
+inner loop (and it does well with cache memories because it most often references data sequentially) so that its running
+time is ~ *c n* lg *n* with the value of *c* smaller than the corresponding constants for other linearithmic sorts. 
+With 3-way partitioning, quicksort becomes linear for certain key distributions likely to arise in practice, where
+other sorts are linearithmic.
+
+Partitioning-based selection is a linear-time algorithm, on average.
+An analysis similar to, but significantly more complex than the proof for quicksort leads to the result that the
+average number of compares is ~ 2*n* + 2*k* ln(*n/k*) + 2(*n* - *k*) ln(*n*/(*n* - *k*)), which is linear for any allowed
+value of *k*. For example, this formula says that finding the median (*k* = *n*/2) requires ~ (2 + 2ln 2) *n* compares,
+on average. Note that the worst case is quadratic but randomization protects against that possibility, as with
+quicksort.
