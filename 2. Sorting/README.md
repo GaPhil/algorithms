@@ -285,6 +285,144 @@ implementation for arrays with large numbers of duplicate keys.
 Quicksort with 3-way partitioning uses ~ (2 ln 2) *n H*  compares to sort *N* items, where *H* is the Shannon entropy,
 defined from the frequencies of key values. Note that *H* = lg *n* when the keys are all distinct.
 
+#### 2.4 Priority Queues
+
+##### API
+
+`public class MaxPQ<Key extends Comparable<Key>>` <br> 
+`MaxPQ()` *create a priority queue* <br> 
+`MaxPQ(int max)` *create a priority queue of initial capacity max* <br> 
+`MaxPQ(Key[] a)` *create a priority queue from the keys in `a[]`* <br> 
+`voio inser(Key v)` *insert a key into the priority queue* <br> 
+`Key max()` *return the largest key* <br> 
+`Key delMax()` *return and remove the largest key* <br> 
+`boolean isEmpty()` *is the priority queue empty?* <br> 
+`int size()` *number of keys in the priority queue* <br> 
+
+A binary tree is *heap-sorted* if the key in each node is larger tha or equal to the keys in that node's two children
+(if any). The largest key in a heap-ordered binary tree is found at the root. A *binary-heap* is a collection of keys
+arranged in a complete heap-ordered binary tree, represented in level order in an array (not using the first entry).
+The height of a complete binary tree of size *n* is lg *n*.
+
+##### Algorithms on heaps
+
+```java
+public static boolean less(int i, int j) {
+    return pq[i].compareTo(pq[j]) < 0;
+}
+
+public static void exch(int i, int j) {
+    Key t = pq[i];
+    pq[i] = pq[j];
+    pq[j] = t;
+}
+```
+Compare and exchange methods for heap implementations
+
+```java
+public static void swim(int k) {
+    while (k > 1 && less(k / 2, k)) {
+        exch(k / 2, k);
+        k = k / 2;
+    }
+}
+```
+Bottom-up reheapify (swim) implementation
+
+```java
+public static void sink(int k) {
+    while (2 * k <= n) {
+        int j = 2 * k;
+        if (j < n && less(j, j + 1)) {
+            j++;
+        }
+        if (!less(k, j)) {
+            break;
+        }
+        exch(k, j);
+        k = j;
+    }
+}
+```
+Top-down reheapify (sink) implementation
+
+##### Heap priority queue
+
+```java
+public class MaxPQ<Key extends Comparable<Key>> {
+
+    private Key[] pq;
+    private int n = 0;
+
+    public MaxPQ(int maxN) {
+        pq = (Key[]) new Comparable[maxN + 1];
+    }
+
+    public boolean isEmpty() {
+        return n == 0;
+    }
+
+    public int size() {
+        return n;
+    }
+
+    public void insert(Key v) {
+        pq[++n] = v;
+        HelperHeap.swim(n);
+    }
+
+    public Key delMax() {
+        Key max = pq[1];
+        HelperHeap.exch(1, n--);
+        pq[n + 1] = null;
+        HelperHeap.sink(1);
+        return max;
+    }
+}
+```
+The priority queue is maintained in a heap-ordered complete binary tree in the array `pq[]` with `pq[0]` unused and
+the `n` keys in the priority queue in `pq[1]` through `pq[n]`. To implement `insert()`, we increment `n`, add the new
+element at the end, the use`swim()` a to restore the heap order. for `delMax()`, we take the value to be returned from
+`pq[1]`, then move `pq[n]` to `pq[1]`, decrement the size of the heap and use `sink()` to restore the heap condition.
+We also set the now-unused position `pq[n+1]` to `null` to allow the system to reclaim the memory associated with it.
+
+In an *n*-key priority queue, the heap algorithms require no more than 1 + lg *n* compares for *insert* and no more than
+2 lg *n* compares for *remove the maximum*. Both operations involve moving along a path between the root and the bottom
+of the heap whose number of links is no more than lg *n*. The *remove the maximum* operation requires two compares for
+each node on the path (except at the bottom): one to find the child with th larger key, the other to decide whether that
+child needs to be promoted.
+
+In and index priority queue of size *n*, the number of compares required is proportional to at most log *n* for *insert,
+change priority, delete*, and *remove the minimum*. All paths in a heap are of length at most ~lg *n*.
+
+Sink-based heap construction uses at most 2*n* compare and *n* exchanges to construct a heap from *n* items.
+
+##### Heapsort
+
+```java
+public class HeapSort {
+
+    public static void sort(Comparable[] a) {
+        int n = a.length;
+        for (int k = n / 2; k >= 1; k--) {
+            HelperHeap.sink(a, k, n);
+        }
+        while (n > 1) {
+            HelperHeap.exch(a, n, n--);
+            HelperHeap.sink(a, 1, n);
+        }
+    }
+}
+```
+This code sorts `a[1]` through `a[n]` using the `sink()` method (modified to take `a[]` and `n` as arguments). the
+`for` loop constructs the  heap; then the `while` loop exchanges the largest element `a[1]` with `a[n]` and then
+repairs the heap, continuing until the heap is empty. Decrementing the array indices in the implementations of 
+`exchange()` and `less()` gives and implementation that sorts `a[0]` through `a[n-]`, consistent with our other sorts.
+
+Heapsort uses fewer than 2*n* lg *n* + 2*n* compares (and half that many exchanges) to sort *n* items. The 2 *n* term
+covers the cost of heap construction. The 2 *n* lg *n* term follows from bounding the cost of each sink operation 
+during the sortdown by 2 lg *n*.
+
 #### Summary
 
 The table below summarizes the number of compares for a variety of sorting algorithms, as implemented 
