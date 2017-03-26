@@ -14,7 +14,11 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Quicksort partitioning
   - [x] Quicksort
   - [x] Quicksort with 3-way partitioning
-- [ ] 2.4 Priority Queues
+- [x] 2.4 Priority Queues
+  - [x] API
+  - [x] Algorithms on heaps
+  - [x] Heap priority queue
+  - [x] Heapsort
 - [ ] Summary
 
 **3. Searching**
