@@ -260,6 +260,6 @@ underlying data structure           |implementation                             
 *ordered array<br>(binary search)*  |`BinarySearchST`                                 |optimal search<br>and space,<br>order-based ops |slow insert
 *binary<br>search tree*             |`BST`                                            |easy to<br>implement,<br>order-based ops        |no guarantees<br>space for links
 *balanced<br>BST*                   |`RedBlackBST`                                    |optimal search<br>and insert,<br>order-based ops|space for links
-*hash table*                        |`SeparateChainingHashST`<br>`LinearProbingHashST`|fast search/insert<br>for common types of data  |need for each type<br>order-based ops<br> space for links/empty
+*hash table*                        |`SeparateChainingHashST`<br>`LinearProbingHashST`|fast search/insert<br>for common types of data  |need for each type<br>no order-based ops<br> space for links/empty
 
 Pros and cons of symbol-table implementations
