@@ -290,6 +290,7 @@ defined from the frequencies of key values. Note that *H* = lg *n* when the keys
 ##### API
 
 `public class MaxPQ<Key extends Comparable<Key>>` <br> 
+___
 `MaxPQ()` *create a priority queue* <br> 
 `MaxPQ(int max)` *create a priority queue of initial capacity max* <br> 
 `MaxPQ(Key[] a)` *create a priority queue from the keys in `a[]`* <br> 
