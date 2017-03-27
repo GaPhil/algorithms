@@ -249,7 +249,7 @@ forward.
 
 ##### Analysis of binary search
 
-Binary search in and ordered array with *n* keys uses no more than lg *n* + 1 compares for a search (successful or 
+Binary search in an ordered array with *n* keys uses no more than lg *n* + 1 compares for a search (successful or 
 unsuccessful). With binary search, we achieve a logarithmic-time search guarantee. Inserting a new key into an ordered 
 array of size *n* uses ~ 2*n* array access in the worst case, so inserting *n* keys into an initially empty table uses
 ~ *n*<sup>2</sup> array accesses in the worst case.
