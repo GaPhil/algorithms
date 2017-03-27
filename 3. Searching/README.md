@@ -51,6 +51,7 @@ where compares are not in the inner loop, we count *array accesses*.
 ```java
 public class SequentialSearchST<Key, Value> {
 
+    private int n;
     private Node first;
 
     private class Node {
@@ -83,6 +84,14 @@ public class SequentialSearchST<Key, Value> {
         }
         first = new Node(key, val, first);
     }
+
+    public int size() {
+        return n;
+    }
+
+    public boolean isEmpty() {
+        return size() == 0;
+    }
 }
 ```
 This `ST` implementation uses a private `Node` inner class to keep the keys and values in an ordered linked list. The
@@ -96,3 +105,160 @@ compares, and search hits *n* compares in the worst case. When searching for a k
 every key in the table against the search key. Because of our policy of disallowing duplicate keys, we need to do such
 a search before the insertion. Insertion *n* distinct keys into an initially empty linked-list symbol table uses
 ~ *n*<sup>2</sup> / 2 compares.
+
+##### Binary search (in an ordered array)
+
+```java
+public class BinarySearchST<Key extends Comparable<Key>, Value> {
+
+    private Key[] keys;
+    private Value[] vals;
+    private int n;
+
+    public BinarySearchST(int capacity) {
+        keys = (Key[]) new Comparable[capacity];
+        vals = (Value[]) new Object[capacity];
+    }
+
+    public int size() {
+        return n;
+    }
+
+    public Value get(Key key) {
+        if (isEmpty()) {
+            return null;
+        }
+        int i = rank(key);
+        if (i < n && keys[i].compareTo(key) == 0) {
+            return vals[i];
+        } else {
+            return null;
+        }
+    }
+
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    public int rank(Key key) {
+        int lo = 0;
+        int hi = n - 1;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            int cmp = key.compareTo(keys[mid]);
+            if (cmp < 0) {
+                hi = mid - 1;
+            } else if (cmp > 0) {
+                lo = mid + 1;
+            } else {
+                return mid;
+            }
+        }
+        return lo;
+    }
+
+    public void put(Key key, Value val) {
+        int i = rank(key);
+        if (i < n && keys[i].compareTo(key) == 0) {
+            vals[i] = val;
+            return;
+        }
+        for (int j = n; j > i; j--) {
+            keys[j] = keys[j - 1];
+            vals[j] = vals[j - 1];
+        }
+        keys[i] = key;
+        vals[i] = val;
+        n++;
+    }
+
+    public void delete(Key key) {
+        if (key == null) throw new IllegalArgumentException("argument to delete() is null");
+        if (isEmpty()) return;
+
+        int i = rank(key);
+
+        if (i == n || keys[i].compareTo(key) != 0) {
+            return;
+        }
+
+        for (int j = i; j < n - 1; j++) {
+            keys[j] = keys[j + 1];
+            vals[j] = vals[j + 1];
+        }
+
+        n--;
+        keys[n] = null;  // to avoid loitering
+        vals[n] = null;
+    }
+}
+```
+This `ST` implementation keeps the keys and values in parallel arrays. The `put()` implementation moves larger keys one
+position to the right before growing the table as in the array-based stack implementation. The `rank(Key key)` method
+computes the number of keys in the table that are smaller than `key`. Compare `key` with the key in the middle: if it
+is equal, return its index; if it is less, look in the left half; if it is greater, look in the right half.
+
+##### Ordered symbol-table operations for binary search
+
+```
+ public Key min() {
+        return keys[0];
+    }
+
+    public Key max() {
+        return keys[n - 1];
+    }
+
+    public Key select(int k) {
+        return keys[k];
+    }
+
+    public Key ceiling(Key key) {
+        int i = rank(key);
+        return keys[i];
+    }
+
+    public Key floor(Key key) {
+        if (key == null) throw new IllegalArgumentException("argument to floor() is null");
+        int i = rank(key);
+        if (i < n && key.compareTo(keys[i]) == 0) {
+            return keys[i];
+        }
+        if (i == 0) {
+            return null;
+        } else {
+            return keys[i - 1];
+        }
+    }
+
+    public Iterable<Key> keys(Key lo, Key hi) {
+        Queue<Key> queue = new Queue<Key>();
+        for (int i = rank(lo); i < rank(hi); i++) {
+            queue.enqueu(keys[i]);
+        }
+        if (contains(hi)) {
+            queue.enqueue(keys[rank(hi)]);
+        }
+        return queue;
+    }
+```
+These methods complete the implementation of our (ordered) symbol-table API using binary search in an ordered array.
+The `min()`, `max()`, and `select()` methods are trivial, just amounting to returning the appropriate key from its
+known position in the array. The `rank()` and `delete()` implementations are more complicated, but still straight
+forward.
+
+##### Analysis of binary search
+
+Binary search in and ordered array with *n* keys uses no more than lg *n* + 1 compares for a search (successful or 
+unsuccessful). With binary search, we achieve a logarithmic-time search guarantee. Inserting a new key into an ordered 
+array of size *n* uses ~ 2*n* array access in the worst case, so inserting *n* keys into an initially empty table uses
+~ *n*<sup>2</sup> array accesses in the worst case.
+
+underlying data structure           |implementation                                   |pros                                            |cons                  
+:----------------------------------:|:-----------------------------------------------:|:-----------------------------------------------|:---
+*linked list<br>(sequential search)*|`SequentialSearchST`                             |best for tiny STs                               |slow for large STs
+*ordered array<br>(binary search)*  |`BinarySearchST`                                 |optimal search<br>and space,<br>order-based ops |slow insert
+*binary<br>search tree*             |`BST`                                            |easy to<br>implement,<br>order-based ops        |no guarantees<br>space for links
+*balanced<br>BST*                   |`RedBlackBST`                                    |optimal search<br>and insert,<br>order-based ops|space for links
+*hash table*                        |`SeparateChainingHashST`<br>`LinearProbingHashST`|fast search/insert<br>for common types of data  |need for each type<br>order-based ops<br> space for links/empty
+Pros and cons of symbol-table implementations
