@@ -1,5 +1,6 @@
 public class SequentialSearchST<Key, Value> {
 
+    private int n;
     private Node first;
 
     private class Node {
@@ -31,5 +32,13 @@ public class SequentialSearchST<Key, Value> {
             }
         }
         first = new Node(key, val, first);
+    }
+
+    public int size() {
+        return n;
+    }
+
+    public boolean isEmpty() {
+        return size() == 0;
     }
 }
