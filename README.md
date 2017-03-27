@@ -19,7 +19,7 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Algorithms on heaps
   - [x] Heap priority queue
   - [x] Heapsort
-- [ ] Summary
+- [x] Summary
 
 **3. Searching**
 - [ ] 3.1 Symbol Tables
