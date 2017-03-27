@@ -200,7 +200,7 @@ is equal, return its index; if it is less, look in the left half; if it is great
 
 ##### Ordered symbol-table operations for binary search
 
-```
+```java
  public Key min() {
         return keys[0];
     }
