@@ -22,7 +22,7 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
 - [x] Summary
 
 **3. Searching**
-- [ ] 3.1 Symbol Tables
+- [x] 3.1 Symbol Tables
   - [x] API
   - [x] Ordered symbol table
   - [x] Sequential search (in an unordered linked list)
