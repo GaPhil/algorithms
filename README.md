@@ -23,6 +23,12 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
 
 **3. Searching**
 - [ ] 3.1 Symbol Tables
+  - [x] API
+  - [x] Ordered symbol table
+  - [x] Sequential search (in an unordered linked list)
+  - [x] Binary search (in an ordered array)
+  - [x] Ordered symbol-table operations for binary search
+  - [x] Analysis of binary search
 - [ ] 3.2 Binary Sort
 - [ ] 3.3 Balanced Search Trees
 - [ ] 3.4 Hash Tables
