@@ -263,3 +263,283 @@ underlying data structure           |implementation                             
 *hash table*                        |`SeparateChainingHashST`<br>`LinearProbingHashST`|fast search/insert<br>for common types of data  |need for each type<br>no order-based ops<br> space for links/empty
 
 Pros and cons of symbol-table implementations
+
+#### 3.2 Binary Search Trees
+
+A *binary search tree* (BST) is a binary tree where each node has a `Comparable` key (and associated value) and
+satisfies the restriction that the key in any node is larger than the keys in all nodes in that node's left subtree and
+smaller than the keys in all nodes in that node's right subtree.
+```java
+public class BST<Key extends Comparable<Key>, Value> {
+
+    private Node root;
+
+    private class Node {
+        private Key key;
+        private Value val;
+        private Node left;
+        private Node right;
+        private int n;
+
+        public Node(Key key, Value val, int n) {
+            this.key = key;
+            this.val = val = val;
+            this.n = n;
+        }
+    }
+
+    public int size() {
+        return size(root);
+    }
+
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    private int size(Node x) {
+        if (x == null) {
+            return 0;
+        } else {
+            return x.n;
+        }
+    }
+}
+```
+This implementation of the ordered symbol-table API uses a binary search tree built from `Node` objects that each
+contain a key, associated value, two links, and a node count `n`. Each `Node` is the root of a subtree containing `n`
+nodes, with its left link pointing to a `Node` that is the root of a subtree with smaller keys and its right link
+pointing to a `Node` at the root of the BST (which has all the keys and associated values in the symbol table). 
+
+```java
+    public Value get(Key key) {
+        return get(root, key);
+    }
+
+    public Value get(Node x, Key key) {
+        if (x == null) {
+            return null;
+        }
+        int cmp = key.compareTo(x.key);
+        if (cmp < 0) {
+            return get(x.left, key);
+        } else if (cmp > 0) {
+            return get(x.right, key);
+        } else {
+            return x.val;
+        }
+    }
+
+    public void put(Key key, Value val) {
+        root = put(root, key, val);
+    }
+
+    private Node put(Node x, Key key, Value val) {
+        if (x == null) {
+            return new Node(key, val, 1);
+        }
+        int cmp = key.compareTo(x.key);
+        if (cmp < 0) {
+            x.left = put(x.left, key, val);
+        } else if (cmp > 0) {
+            x.right = put(x.right, key, val);
+        } else {
+            x.val = val;
+        }
+        x.n = size(x.left) + size(x.right) + 1;
+        return x;
+    }
+```
+These implementations of `get()` and `put()` for the symbol-table API are characteristic recursive BST methods that
+also serve as models for several other implementations that we consider later.
+
+Search hits in a BST built from *n* random keys require ~ 2 ln *n* compares, on the average. The number of compares
+used for a search hit ending at a given node is 1 plus the depth. Adding the depths of all nodes, we get a quantity
+know as the *internal path length* of the tree. Insertions and search misses in a BST built from *n* random keys require
+~ 2 ln *n* compares, on the average. Insertion and search misses take one more compare, on the average, than search
+hits.
+
+```java
+    public Key min() {
+        if (isEmpty()) {
+            throw new NoSuchElementException("called min() with empty symbol table");
+        }
+        Node x = min(root);
+        return x.key;
+    }
+
+    private Node min(Node x) {
+        if (x.left == null) {
+            return x;
+        }
+        return min(x.left);
+    }
+
+    public Key floor(Key key) {
+        Node x = floor(root, key);
+        if (x == null) {
+            throw new NoSuchElementException();
+        }
+        return x.key;
+    }
+
+    private Node floor(Node x, Key key) {
+        if (x == null) {
+            return null;
+        }
+        int cmp = key.compareTo(x.key);
+        if (cmp == 0) {
+            return x;
+        }
+        if (cmp < 0) {
+            return floor(x.left, key);
+        }
+        Node t = floor(x.right, key);
+        if (t != null) {
+            return t;
+        } else {
+            return x;
+        }
+    }
+```
+Each client method calls a corresponding private method that takes an additional link (to a `Node`) as argument and 
+returns `null` or a `Node` containing the desired `Key` via the recursive procedure. The `max()` and `ceiling()`
+methods are the same as `min()` and `floor()` (respectively) with right and left (and < and >) interchanged.
+
+```java
+    public Key select(int k) {
+        if (k < 0 || k >= size()) {
+            throw new IllegalArgumentException();
+        }
+        Node x = select(root, k);
+        return x.key;
+    }
+
+    private Node select(Node x, int k) {
+        if (x == null) {
+            return null;
+        }
+        int t = size(x.left);
+        if (t > k) {
+            return select(x.left, k);
+        } else if (t < k) {
+            return select(x.right, k - t - 1);
+        } else {
+            return x;
+        }
+    }
+
+    public int rank(Key key) {
+        return rank(key, root);
+    }
+
+    private int rank(Key key, Node x) {
+        if (x == null) {
+            return 0;
+        }
+        int cmp = key.compareTo(x.key);
+        if (cmp < 0) {
+            return rank(key, x.left);
+        } else if (cmp > 0) {
+            return 1 + size(x.left) + rank(key, x.right);
+        } else {
+            return size(x.left);
+        }
+    }
+```
+This code uses the same recursive scheme that has been used previously inorder to implement `select()` and `rank()`
+methods. It depends on using the private `size()` method given further up that returns the number of nodes in the
+subtree rooted at a node.
+
+```java
+    public void deleteMin() {
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        root = deleteMin(root);
+    }
+
+    private Node deleteMin(Node x) {
+        if (x.left == null) {
+            return x.right;
+        }
+        x.left = deleteMin(x.left);
+        x.n = size(x.left) + size(x.right) + 1;
+        return x;
+    }
+
+    public void delete(Key key) {
+        root = delete(root, key);
+    }
+
+    private Node delete(Node x, Key key) {
+        if (x == null) {
+            return null;
+        }
+        int cmp = key.compareTo(x.key);
+        if (cmp < 0) {
+            x.left = delete(x.left, key);
+        } else if (cmp > 0) {
+            x.right = delete(x.right, key);
+        } else {
+            if (x.right == null) {
+                return x.left;
+            }
+            if (x.left == null) {
+                return x.right;
+            }
+            Node t = x;
+            x = min(t.right);
+            x.right = deleteMin(t.right);
+            x.left = t.left;
+        }
+        x.n = size(x.left) + size(x.right) + 1;
+        return x;
+    }
+```
+These methods implement eager Hibbard deletion in BSTs. The `delete()` code is compact, but tricky. This method is 
+typically effective, but performance in large-scale applications can become a bit problematic. The `deleteMax()` method
+is the same as `deleteMin()` with right and left interchanged.
+
+In a BST, all operations take time proportional to the height of the tree, in the worst case. All of these methods go
+down one or two paths in the tree. The length of any path is no more than the height, by definition.
+
+```java
+    public Iterable<Key> keys() {
+        return keys(min(), max());
+    }
+
+    public Iterable<Key> keys(Key lo, Key hi) {
+        Queue<Key> queue = new Queue<Key>();
+        keys(root, queue, lo, hi);
+        return queue;
+    }
+
+    private void keys(Node x, Queue<Key> queue, Key lo, Key hi) {
+        if (x == null) {
+            return;
+        }
+        int cmplo = lo.compareTo(x.key);
+        int cmphi = hi.compareTo(x.key);
+        if (cmplo < 0) {
+            keys(x.left, queue, lo, hi);
+        }
+        if (cmplo <= 0 && cmphi >= 0) {
+            queue.enqueue(x.key);
+        }
+        if (cmphi > 0) {
+            keys(x.right, queue, lo, hi);
+        }
+    }
+```
+To enqueue all the keys from the tree rooted at a given node that fall in a given range onto a queue, we (recursively)
+enqueue all the keys from the left subtree (if any of them could fall in the range), then enqueue the node at the root
+(if it falls in the range), then (recursively) enqueue all the keys from the right subtree (if any of them could fall
+in the range).
+
+algorithm<br>(data structure)|
+
+
+|algorithm       |worst-case cost<br>(after n inserts)||average-case cost<br>(after n random inserts)||
+|(data structure)|search            |insert            |search hit              |insert               |
+|----------------|:----------------:|:----------------:|:----------------------:|:-------------------:|
+|*sequential search<br>(unordered linked list)*|*n*|*n*|*n*/2                   |*n*                  |
