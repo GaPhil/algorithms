@@ -1,6 +1,4 @@
-import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Queue;
 
 public class BST<Key extends Comparable<Key>, Value> {
 
@@ -101,7 +99,34 @@ public class BST<Key extends Comparable<Key>, Value> {
         if (x.right == null) {
             return x;
         }
-        return min(x.right);
+        return max(x.right);
+    }
+
+    public Key ceiling(Key key) {
+        Node x = ceiling(root, key);
+        if (x == null) {
+            throw new NoSuchElementException();
+        }
+        return x.key;
+    }
+
+    private Node ceiling(Node x, Key key) {
+        if (x == null) {
+            return null;
+        }
+        int cmp = key.compareTo(x.key);
+        if (cmp == 0) {
+            return x;
+        }
+        if (cmp > 0) {
+            return ceiling(x.right, key);
+        }
+        Node t = ceiling(x.left, key);
+        if (t != null) {
+            return t;
+        } else {
+            return x;
+        }
     }
 
     public Key floor(Key key) {
@@ -187,6 +212,22 @@ public class BST<Key extends Comparable<Key>, Value> {
         return x;
     }
 
+    public void deleteMax() {
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        root = deleteMax(root);
+    }
+
+    private Node deleteMax(Node x) {
+        if (x.right == null) {
+            return x.left;
+        }
+        x.right = deleteMin(x.right);
+        x.n = size(x.right) + size(x.left) + 1;
+        return x;
+    }
+
     public void delete(Key key) {
         root = delete(root, key);
     }
@@ -228,12 +269,18 @@ public class BST<Key extends Comparable<Key>, Value> {
 
     private void keys(Node x, Queue<Key> queue, Key lo, Key hi) {
         if (x == null) {
-            return;;
+            return;
         }
         int cmplo = lo.compareTo(x.key);
         int cmphi = hi.compareTo(x.key);
         if (cmplo < 0) {
-            keys()
+            keys(x.left, queue, lo, hi);
+        }
+        if (cmplo <= 0 && cmphi >= 0) {
+            queue.enqueue(x.key);
+        }
+        if (cmphi > 0) {
+            keys(x.right, queue, lo, hi);
         }
     }
 }
