@@ -535,16 +535,12 @@ To enqueue all the keys from the tree rooted at a given node that fall in a give
 enqueue all the keys from the left subtree (if any of them could fall in the range), then enqueue the node at the root
 (if it falls in the range), then (recursively) enqueue all the keys from the right subtree (if any of them could fall
 in the range).
-
-algorithm<br>(data structure)|
-
  
 algorithm<br>(data structure)                 |search<sup>1</sup>|insert<sup>1</sup>|search hit<sup>2</sup>|insert<sup>2</sup>|efficiently<br>support ordered<br>operations?
 :--------------------------------------------:|:----------------:|:----------------:|:---------------------:|:-----------------:|:--------------------------------------------:
 *sequential search<br>(unordered linked list)*|*n*               |*n*               |*n*/2                  |*n*                |no
 *binary search<br>(ordered array)*            |lg *n*            |*n*               |lg *n*                 |*n*/2              |yes
 *binary tree search<br>(BST)*                 |*n*               |*n*               |1.39 lg *n*            |1.39 lg *n*        |yes
-
 
 <sup>1</sup>worst-case cost (after n inserts)<br><sup>2</sup>average-case cost (after n random inserts)
 
