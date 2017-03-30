@@ -552,3 +552,224 @@ algorithm<br>(data structure)                 |search<sup>1</sup>|insert<sup>1</
 <sup>1</sup>worst-case cost (after n inserts)<br><sup>2</sup>average-case cost (after n random inserts)
 
 Cost summary for basic symbol-table implementations (updated) 
+
+#### 3.3 Balanced Search Trees
+
+##### 2-3 search trees
+
+A 2-3 *search tree* is a tree that is either empty or
+* A 2-*node*, with one key (and associated value) and two links, a left link to a 2-3 search tree with smaller keys,
+and a right link to a 2-3 search tree with larger keys
+* A 3-*node*, with two keys (and associated values) and *three* links, a left link to a 2-3 search tree with smaller
+keys, a middle link to a 2-3 search tree with keys between the node's keys, and a right link to a 2-3 search tree with
+larger keys
+
+As usual, we refer to a link to an empty tree as a *null link*.
+
+Search and insert operations in a 2-3 tree with *n* keys are guaranteed to visit at most lg *n* nodes. The height of an
+*n*-node 2-3 tree is between log<sub>3</sub> *n* = (lg *n*)/(lg3) (if the tree is all 3-nodes) and lg *n* (if the tree
+is all 2-nodes).
+
+##### Red-black BSTs
+
+We *define red-black BSTs as BSTs having red and black links and satisfying the following three restrictions:
+* Red links lean left.
+* No node has two red links connected to it.
+* The tree has *perfect black balance*: every path from the root to a null link has the same number of black links - we
+refer to this number as the tree's *black* height.
+
+```java
+    private static final boolean RED = true;
+    private static final boolean BLACK = false;
+
+    private class Node {
+        Key key;
+        Value val;
+        Node left;
+        Node right;
+        int n;
+        boolean colour;
+
+        Node(Key key, Value val, int n, boolean colour) {
+            this.key = key;
+            this.val = val;
+            this.n = n;
+            this.colour = colour;
+        }
+    }
+
+    private boolean isRed(Node x) {
+        if (x == null) {
+            return false;
+        }
+        return x.colour == RED;
+    }
+```
+Node representation for red-black BSTs
+
+```java
+   Node rotateLeft(Node h) {
+        Node x = h.right;
+        h.right = x.left;
+        x.left = h;
+        x.colour = h.colour;
+        h.colour = RED;
+        x.n = h.n;
+        h.n = 1 + size(h.left) + size(h.right);
+        return x;
+    } 
+```
+Left rotate (right link of h)
+
+```java
+    Node rotateRight(Node h) {
+        Node x = h.left;
+        h.left = x.right;
+        x.right = h;
+        x.colour = h.colour;
+        h.colour = RED;
+        x.n = h.n;
+        h.n = 1 + size(h.left) + size(h.right);
+        return x;
+    }
+```
+Right rotate (left link of h)
+
+```java
+public class RedBlackBST<Key extends Comparable<Key>, Value> {
+
+    private static final boolean RED = true;
+    private static final boolean BLACK = false;
+    private Node root;
+
+    private class Node {
+        Key key;
+        Value val;
+        Node left;
+        Node right;
+        int n;
+        boolean colour;
+
+        Node(Key key, Value val, int n, boolean colour) {
+            this.key = key;
+            this.val = val;
+            this.n = n;
+            this.colour = colour;
+        }
+    }
+
+    private boolean isRed(Node x) {
+        if (x == null) {
+            return false;
+        }
+        return x.colour == RED;
+    }
+
+    Node rotateLeft(Node h) {
+        Node x = h.right;
+        h.right = x.left;
+        x.left = h;
+        x.colour = h.colour;
+        h.colour = RED;
+        x.n = h.n;
+        h.n = 1 + size(h.left) + size(h.right);
+        return x;
+    }
+
+    Node rotateRight(Node h) {
+        Node x = h.left;
+        h.left = x.right;
+        x.right = h;
+        x.colour = h.colour;
+        h.colour = RED;
+        x.n = h.n;
+        h.n = 1 + size(h.left) + size(h.right);
+        return x;
+    }
+
+    void flipColours(Node h) {
+        h.colour = RED;
+        h.left.colour = BLACK;
+        h.right.colour = BLACK;
+    }
+
+    private int size(Node x) {
+        if (x == null) {
+            return 0;
+        } else {
+            return x.n;
+        }
+    }
+
+    public int size() {
+        return size(root);
+    }
+
+    public void put(Key key, Value val) {
+        root = put(root, key, val);
+        root.colour = BLACK;
+    }
+
+    private Node put(Node h, Key key, Value val) {
+        if (h == null) {
+            return new Node(key, val, 1, RED);
+        }
+        int cmp = key.compareTo(h.key);
+        if (cmp < 0) {
+            h.left = put(h.left, key, val);
+        } else if (cmp > 0) {
+            h.right = put(h.right, key, val);
+        } else {
+            h.val = val;
+        }
+
+        if (isRed(h.right) && !isRed(h.left)) {
+            h = rotateLeft(h);
+        }
+        if (isRed(h.left) && isRed(h.left.left)) {
+            h = rotateRight(h);
+        }
+        if (isRed(h.left) && isRed(h.right)) {
+            flipColours(h);
+        }
+
+        h.n = size(h.left) + size(h.right) + 1;
+        return h;
+    }
+}
+```
+The code for the recursive `put()` for red-black BSTs is identical to `put()` in elementary BSTs except for the three
+`if` statements after the recursive calls, which provide near-perfect balance in the tree by maintaining a 1-1
+correspondence with 2-3 trees, on the way up the search path. The first rotates left any right-leaning 3-node (or a 
+right-leaning red link at the bottom of a temporary 4-node); the second rotates right the top link in a temporary 4-node
+with two left-leaning red links; and the third flips colours to pass a red link up the tree.
+
+##### Deletion
+
+* Represent 4-nodes as a balanced subtree of tree 2-nodes, with both the left and right child connected to the parent
+with a red link
+* Split 4-nodes on the way *down* the tree with colour flips
+* Balance 4-nodes on the way *up* the tree with rotations, as for insertion.
+
+##### Properties of red-black BSTs
+
+The height of a red-black BST with *n* nodes is no more than 2 lg *n*. The worst case is a 2-3 tree that is all 2-nodes
+except that the left-most path is made up of 3-nodes. The path taking left links from the root is twice as long as the
+paths of length ~ lg *n* that involve just 2-nodes. It is possible, but not easy, to develop key sequences that cause 
+the construction of red-black BSTs whose average path length is the worst-case 2 lg *n*. 
+
+The average length of a path from the root to a node in a red-black BST with *n* nodes is ~ 1.00 lg *n*. Typical trees,
+are quite well balanced, by comparison with typical BSTs. In a red-black BST, the following operations take logarithmic
+time in the worst case: search, insertion, finding the minimum, finding the maximum, floor, ceiling, rank, select,
+delete the minimum, delete the maximum, delete, and range count.
+
+algorithm<br>(data structure)                 |search<sup>1</sup>|insert<sup>1</sup>|search hit<sup>2</sup>|insert<sup>2</sup>|efficiently<br>support ordered<br>operations?
+:--------------------------------------------:|:----------------:|:----------------:|:---------------------:|:-----------------:|:--------------------------------------------:
+*sequential search<br>(unordered linked list)*|*n*               |*n*               |*n*/2                  |*n*                |no
+*binary search<br>(ordered array)*            |lg *n*            |*n*               |lg *n*                 |*n*/2              |yes
+*binary tree search<br>(BST)*                 |*n*               |*n*               |1.39 lg *n*            |1.39 lg *n*        |yes
+*2-3 tree search<br>(red-black BST)*          |2 lg *n*          |2 lg *n*          |1.00 lg *n*            |1.00 lg *n*        |yes
+
+<sup>1</sup>worst-case cost (after n inserts)<br><sup>2</sup>average-case cost (after n random inserts)
+
+Cost summary for basic symbol-table implementations (updated) 

@@ -34,6 +34,10 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Analysis
   - [x] Order-based methods and deletion
 - [ ] 3.3 Balanced Search Trees
+  - [ ] 2-3 search trees
+  - [ ] Red-black BSTs
+  - [ ] Deletion
+  - [ ] Properties of red-black BSTs
 - [ ] 3.4 Hash Tables
 - [ ] Summary
 
