@@ -29,7 +29,10 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Binary search (in an ordered array)
   - [x] Ordered symbol-table operations for binary search
   - [x] Analysis of binary search
-- [ ] 3.2 Binary Sort
+- [x] 3.2 Binary Search Trees
+  - [x] Basic implementation 
+  - [x] Analysis
+  - [x] Order-based methods and deletion
 - [ ] 3.3 Balanced Search Trees
 - [ ] 3.4 Hash Tables
 - [ ] Summary

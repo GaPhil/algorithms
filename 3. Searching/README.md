@@ -269,6 +269,9 @@ Pros and cons of symbol-table implementations
 A *binary search tree* (BST) is a binary tree where each node has a `Comparable` key (and associated value) and
 satisfies the restriction that the key in any node is larger than the keys in all nodes in that node's left subtree and
 smaller than the keys in all nodes in that node's right subtree.
+
+##### Basic implementation
+
 ```java
 public class BST<Key extends Comparable<Key>, Value> {
 
@@ -352,11 +355,15 @@ pointing to a `Node` at the root of the BST (which has all the keys and associat
 These implementations of `get()` and `put()` for the symbol-table API are characteristic recursive BST methods that
 also serve as models for several other implementations that we consider later.
 
-Search hits in a BST built from *n* random keys require ~ 2 ln *n* compares, on the average. The number of compares
-used for a search hit ending at a given node is 1 plus the depth. Adding the depths of all nodes, we get a quantity
-know as the *internal path length* of the tree. Insertions and search misses in a BST built from *n* random keys require
-~ 2 ln *n* compares, on the average. Insertion and search misses take one more compare, on the average, than search
-hits.
+##### Analysis
+
+Search hits in a BST built from *n* random keys require ~ 2 ln *n* (about 1.39 lg *n*) compares, on the average. The 
+number of compares used for a search hit ending at a given node is 1 plus the depth. Adding the depths of all nodes, we 
+get a quantity know as the *internal path length* of the tree. Insertions and search misses in a BST built from *n* 
+random keys require ~ 2 ln *n* (about 1.39 lg *n*) compares, on the average. Insertion and search misses take one more compare, on the
+average, than search hits.
+
+##### Order-based methods and deletion
 
 ```java
     public Key min() {
