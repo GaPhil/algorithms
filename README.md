@@ -38,8 +38,11 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Red-black BSTs
   - [x] Deletion
   - [x] Properties of red-black BSTs
-- [ ] 3.4 Hash Tables
-- [ ] Summary
+- [x] 3.4 Hash Tables
+  - [x] Hash functions
+  - [x] Hashing with separate chaining
+  - [x] Hashing with linear probing
+  - [x] Applications
 
 **4. Graphs**
 - [ ] 4.1 Undirected Graphs

@@ -773,3 +773,235 @@ algorithm<br>(data structure)                 |search<sup>1</sup>|insert<sup>1</
 <sup>1</sup>worst-case cost (after n inserts)<br><sup>2</sup>average-case cost (after n random inserts)
 
 Cost summary for basic symbol-table implementations (updated) 
+
+#### Hash Tables
+
+##### Hash functions
+
+```java
+int hash = 0;
+for (int i = 0; i < s.length(); i++) {
+    hash = (R * hash + s.charAT(i)) % m;
+}
+```
+Hashing a string key
+
+```java
+public class Transaction{
+    ...
+    private final String who;
+    private final Date when;
+    private final double amount;
+    
+    public int hashCode() {
+        int hash = 1;
+        hash = 31 * hash + who.hashCode();
+        hash = 31 * hash + when.hashCode();
+        hash = 31 * hash + ((Double) amount).hashCode();
+        return hash;
+    }
+    ...
+}
+```
+Implementing hashCode() in a user-defined type
+
+*Uniform hashing assumption*   
+The hash functions that we use uniformly and independently distribute keys among the integer values between 0 and m-1.
+With all of the arbitrary choices we have made, the Java hash functions that we have considered do not satisfy these
+conditions; nor can any *deterministic* hash function. The idea of constructing hash functions that uniformly and 
+independently distribute keys leads to deep issues in theoretical computer science. In 1977, L. Carter and M. Wegman
+described how to construct a *universal* family of hash functions. If a hash function is chosen at random from a
+universal family, the hash function uniformly distributes the keys, but only with a partial independence. Although
+weaker than full independence, the partial independence is sufficient to establish performance guarantees.
+
+##### Hashing with separate chaining
+
+```java
+public class SeparateChainingHashST<Key, Value> {
+
+    private int m;                                  // hash table size
+    private SequentialSearchST<Key, Value>[] st;    // array of ST objects
+
+    public SeparateChainingHashST() {
+        this(997);
+    }
+
+    public SeparateChainingHashST(int m) {
+        // create m linked lists
+        this.m = m;
+        st = (SequentialSearchST<Key, Value>[]) new SequentialSearchST[m];
+        for (int i = 0; i < m; i++) {
+            st[i] = new SequentialSearchST();
+        }
+    }
+
+    private int hash(Key key) {
+        return (key.hashCode() & 0x7fffffff) % m;
+    }
+
+    public Value get(Key key) {
+        return (Value) st[hash(key)].get(key);
+    }
+
+    public void put(Key key, Value val) {
+        st[hash(key)].put(key, val);
+    }
+
+    // return keys in symbol table as an Iterable
+    public Iterable<Key> keys() {
+        Queue<Key> queue = new Queue<Key>();
+        for (int i = 0; i < m; i++) {
+            for (Key key : st[i].keys())
+                queue.enqueue(key);
+        }
+        return queue;
+    }
+}
+```
+This basic symbol-table implementation maintains an array of linked lists, using a hash function to choose a list for
+each key. For simplicity, we use `SequentialSearchST` methods. We need to cast when creating `st[]` because Java
+prohibits arrays with generics. The default constructor specifies 99t lists, so that for a large tables, this code is
+about a factor of 1,000 faster than `SequentialSearchST`. This quick solution is an easy way to get good performance
+when you have some idea of the number of key-value pairs to be `put()` by a client. A more robust solution is to use
+array resizing to make sure that lists are short no matter how many key-value pairs are in the table.
+
+In a separate-chaining hash table with *m* lists and *n* keys, the probability that the number of keys in a list is
+within a small factor of *n/m* is extremely close to 1. In a separate-chaining hash table with *m* lists and *n* keys,
+the number of compares (equality tests) for search miss and insert is ~*n/m*.
+
+##### Hashing with linear probing
+
+Linear probing is characterized by identifying three possible outcomes:
+* Key equal to search key: search hit
+* Empty position (null key at indexed position): search miss
+* Key not equal to search key: try next entry
+
+```java
+public class LinearProbingHashST<Key, Value> {
+       
+           private int n;          // number of key-value pairs in the table
+           private int m = 16;     // size of linear-probing table
+           private Key[] keys;     // the keys
+           private Value[] vals;   // the values
+       
+           public LinearProbingHashST(int capacity) {
+               m = capacity;
+               n = 0;
+               keys = (Key[]) new Object[m];
+               vals = (Value[]) new Object[m];
+           }
+       
+           private int hash(Key key) {
+               return (key.hashCode() & 0x7fffffff) % m;
+           }
+       
+           private void resize(int cap) {
+               LinearProbingHashST<Key, Value> t;
+               t = new LinearProbingHashST<Key, Value>(cap);
+               for (int i = 0; i < m; i++) {
+                   if (keys[i] != null) {
+                       t.put(keys[i], vals[i]);
+                   }
+               }
+               keys = t.keys;
+               vals = t.vals;
+               m = t.m;
+           }
+       
+           public void put(Key key, Value val) {
+               if (n >= m / 2) {
+                   resize(2 * m);
+               }
+               int i;
+               for (i = hash(key); keys[i] != null; i = (i + 1) % m) {
+                   if (keys[i].equals(key)) {
+                       vals[i] = val;
+                       return;
+                   }
+               }
+               keys[i] = key;
+               vals[i] = val;
+               n++;
+           }
+       
+           public Value get(Key key) {
+               for (int i = hash(key); keys[i] != null; i = (i + 1) % m) {
+                   if (keys[i].equals(key)) {
+                       return vals[i];
+                   }
+               }
+               return null;
+           }
+       
+           public void delete(Key key) {
+               if (!contains(key)) {
+                   return;
+               }
+               int i = hash(key);
+               while (!key.equals(keys[i])) {
+                   i = (i + 1) % m;
+               }
+               keys[i] = null;
+               vals[i] = null;
+               i = (i + 1) % m;
+               while (keys[i] != null) {
+                   Key keyToRedo = keys[i];
+                   Value valToRedo = vals[i];
+                   keys[i] = null;
+                   vals[i] = null;
+                   n--;
+                   put(keyToRedo, valToRedo);
+                   i = (i + 1) % m;
+               }
+               n--;
+               if (n > 0 && n <= m / 8) {
+                   resize(m / 2);
+               }
+           }
+       
+           public boolean contains(Key key) {
+               if (key == null) throw new IllegalArgumentException("argument to contains() is null");
+               return get(key) != null;
+           }
+       }
+```
+This symbol-table implementation keeps keys and values in parallels arrays (as in `BinarySearchST`) but uses empty 
+spaces (marked by `null`) to terminate clusters of keys. If a new key hashes to an empty entry, it is stored there; if 
+not, we scan sequentially fo find an empty position. To search for a key, we scan sequentially starting at its hash
+index until finding `null` (search miss) ot the key (search hit).
+
+In a linear-probing hash table of size *m* and *n = α m* keys, the average number of probes required is 
+~1/2 (1 + 1 / (1-α)) and ~1/2 (1 + 1 / (1-α)<sup>2</sup>) for search hits and search misses (or inserts), respectively.
+In particular, when α is about 1/2, the average number of probes for a search hit is about 3/2 and for a search miss is
+about 5/2. These estimates lose a bit of precision as α approaches 1, but we do not need them for that case, because we
+will only use linear probing for α less than one-half. It is known that if α is a constant, the average length of the
+longest cluster grows with log *n*.
+
+Suppose a hash table is built with array resizing, starting with an empty table. Any sequence of *t search, insert,*
+and *delete* symbol-table operations is executed in expected time proportional to *t* and with memory usage always
+within a constant factor of the number of keys in the table. This applies for both separate chaining and linear probing.
+
+algorithm          | memory in bytes for<br>*n* key-value pairs<br>(reference types)
+:-----------------:|:--------------------------------------------------------------:
+*sequential search*|~48*n*
+*binary search*    |between ~16*n* and ~64*n*
+*red-black BSTs*   |~64*n*
+*separate chaining*|~48*n* + 32*m*
+*linear probing*   |between ~32*n* and ~128*n*
+
+Memory usage in symbol tables
+
+#### Applications
+
+algorithm<br>(data structure)                      |search<sup>1</sup>|insert<sup>1</sup>|search hit<sup>2</sup>|insert<sup>2</sup>|key<br>interface          |memory<br>(bytes)
+:-------------------------------------------------:|:----------------:|:----------------:|:---------------------:|:---------------:|:------------------------:|:---------------------:
+*sequential search<br>(unordered linked list)*     |*n*               |*n*               |*n*/2                  |*n*              |`equals()`                |48*n*
+*binary search<br>(ordered array)*                 |lg *n*            |*n*               |lg *n*                 |*n*/2            |`compareTo()`             |16*n*
+*binary tree search<br>(BST)*                      |*n*               |*n*               |1.39 lg *n*            |1.39 lg *n*      |`compareTo()`             |64*n*
+*2-3 tree search<br>(red-black BST)*               |2 lg *n*          |2 lg *n*          |1.00 lg *n*            |1.00 lg *n*      |`compareTo()`             |64*n*
+*separate chaining<sup>3</sup><br>(array of lists)*|*n*               |*n*               |*n*/(2*m*)             |*n/m*            |`equals()`<br>`hashCode()`|48*n* + 32*m*
+*linear probing<sup>3</sup><br>(parallel arrays)*  |*n*               |*n*               |<1.50                  |<2.50            |`equals()`<br>`hashCode()`|between 32*n* and 128*n*
+
+<sup>1</sup>worst-case cost (after n inserts)<br><sup>2</sup>average-case cost (after n random inserts)<br><sup>3</sup>under uniform hashing assumptions        
+
+Asymptotic cost summary for symbol-table implementations
