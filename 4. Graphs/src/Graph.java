@@ -1,4 +1,5 @@
 import edu.princeton.cs.algorithms.Bag;
+import edu.princeton.cs.introcs.In;
 
 public class Graph {
 
@@ -37,6 +38,18 @@ public class Graph {
         adj[v].add(w);
         adj[w].add(v);
         E++;
+    }
+
+    public String toString() {
+        String s = V + " vertices, " + E + " edges\n";
+        for (int v = 0; v < V; v++) {
+            s += v + ": ";
+            for (int w : this.adj(v)) {
+                s += w + " ";
+            }
+            s += "\n";
+        }
+        return s;
     }
 
     public Iterable<Integer> adj(int v) {
