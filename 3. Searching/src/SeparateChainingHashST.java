@@ -1,3 +1,5 @@
+import edu.princeton.cs.algorithms.Queue;
+
 public class SeparateChainingHashST<Key, Value> {
 
     private int m;                                  // hash table size

@@ -1,3 +1,5 @@
+import edu.princeton.cs.algorithms.Queue;
+
 import java.util.NoSuchElementException;
 
 public class BST<Key extends Comparable<Key>, Value> {
