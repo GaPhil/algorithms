@@ -1,6 +1,30 @@
 ### 3. Searching
 
 #### 3.1 Symbol Tables
+##### API
+##### Ordered symbol table
+##### Sequential search (in an unordered linked list)
+##### Binary search (in an ordered array)
+##### Ordered symbol-table operations for binary search
+#####Analysis of binary search
+#### 3.2 Binary Search Trees
+##### Basic implementation 
+##### Analysis
+##### Order-based methods and deletion
+#### 3.3 Balanced Search Trees
+##### 2-3 search trees
+##### Red-black BSTs
+##### Deletion
+#### 3.4 Hash Tables
+##### Hash functions
+##### Hashing with separate chaining
+##### Hashing with linear probing
+##### Applications
+
+<br>
+<br>
+
+#### 3.1 Symbol Tables
 
 ##### API
 
