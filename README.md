@@ -45,7 +45,15 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Applications
 
 **4. Graphs**
-- [ ] 4.1 Undirected Graphs
+- [x] 4.1 Undirected Graphs
+  - [x] Glossary
+  - [x] Undirected graph data type
+  - [x] Depth-first search
+  - [x] Finding paths
+  - [x] Breadth-first search
+  - [x] Connected components
+  - [x] Symbol graphs
+  - [x] Summary
 - [ ] 4.2 Directed Graphs
 - [ ] 4.3 Minimum Spanning Trees
 - [ ] 4.4 Shortest Paths
