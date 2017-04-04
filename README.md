@@ -54,13 +54,13 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Connected components
   - [x] Symbol graphs
   - [x] Summary
-- [ ] 4.2 Directed Graphs
-  - [ ] Glossary
-  - [ ] Digraph data type
-  - [ ] Reachability in digraphs
-  - [ ] Cycles and DAGs
-  - [ ] Strong connectivity in digraphs
-  - [ ] Summary
+- [x] 4.2 Directed Graphs
+  - [x] Glossary
+  - [x] Digraph data type
+  - [x] Reachability in digraphs
+  - [x] Cycles and DAGs
+  - [x] Strong connectivity in digraphs
+  - [x] Summary
 - [ ] 4.3 Minimum Spanning Trees
 - [ ] 4.4 Shortest Paths
 - [ ] Summary

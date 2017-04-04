@@ -893,7 +893,7 @@ public class TransitiveClosure {
 ```
 All-pairs reachability
 
-###### Summary
+##### Summary
 
 problem                                   |solution
 :----------------------------------------:|:-------------------------:
