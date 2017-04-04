@@ -136,12 +136,12 @@ this `Graph` implementation maintains a vertex-indexed array of lists of integer
 connects `v` to `w`, then `w` appears in `v`'s list and `v` appears in `w`'s list. The second constructor reads a graph
 from an input stream, in the format *V* followed by *E* followed by a list of pairs of `int` values between 0 and *V*-1.
 
-underlying<br>data structure|space          |add edge `v`-`w`|check whether `w` is<br>adjacent to `v`|iterate through vertices<br>adjacent to `v`
-:--------------------------:|:-------------:|:--------------:|:-------------------------------------:|:-----------------------------------------:
-*list of edges*             |*E*            |1               |*E*                                    |*E* 
-*adjacency matrix*          |*V*<sup>2</sup>|1               |1                                      |*V*
-*adjacency lists*           |*E* + *v*      |1               |*degree(v)*                            |*degree(v)*
-*adjacency sets*            |*E* + *v*      |log *V*         |log *V*                                |*degree(v)*
+underlying<br>data structure|space          |add edge `v-w`|check whether `w` is<br>adjacent to `v`|iterate through vertices<br>adjacent to `v`
+:--------------------------:|:-------------:|:------------:|:-------------------------------------:|:-----------------------------------------:
+*list of edges*             |*E*            |1             |*E*                                    |*E* 
+*adjacency matrix*          |*V*<sup>2</sup>|1             |1                                      |*V*
+*adjacency lists*           |*E* + *v*      |1             |*degree(v)*                            |*degree(v)*
+*adjacency sets*            |*E* + *v*      |log *V*       |log *V*                                |*degree(v)*
 
 Order-of-growth performance for typical `Graph` implementations.
 
@@ -491,3 +491,420 @@ problem                           |solution
 *two-colorability (bipartiteness)*|`TwoColor`
 
 (Undirected) graph-processing problems addressed in this section
+
+#### 4.2 Directed graphs
+
+##### Glossary
+
+A *directed graph* (or *digraph*) is a set of *vertices* and a collection of *directed edges*. Each directed edge
+connects an ordered pair of vertices. 
+
+A *directed path* in a digraph is a sequence of vertices in which there is a (directed) edge point from each vertex in 
+the sequence to its successor in the sequence, and with no repeated edges. A *simple directed path* is a directed path
+with no repeated vertices. A *directed cycle* is a directed path with at least one edge whose first and last vertices
+are the same. A *simple directed cycle* is a directed cycle with no repeated vertices (except the requisite repetition
+of the first and last vertices). The *length* of a directed path or cycle is its number of edges.
+
+##### Digraph data type
+
+```java
+import edu.princeton.cs.algorithms.Bag;
+
+public class Digraph {
+
+    private final int V;
+    private int E;
+    private Bag<Integer>[] adj;
+
+    public Digraph(int V) {
+        this.V = V;
+        this.E = 0;
+        adj = (Bag<Integer>[]) new Bag[V];
+        for (int v = 0; v < V; v++) {
+            adj[v] = new Bag<Integer>();
+        }
+    }
+
+    public int V() {
+        return V;
+    }
+
+    public int E() {
+        return E;
+    }
+
+    public void addEdge(int v, int w) {
+        adj[v].add(w);
+        E++;
+    }
+
+    public Iterable<Integer> adj(int v) {
+        return adj[v];
+    }
+
+    public Digraph reverse() {
+        Digraph R = new Digraph(V);
+        for (int v = 0; v < V; v++) {
+            for (int w : adj(v)) {
+                R.addEdge(w, v);
+            }
+        }
+        return R;
+    }
+}
+```
+This `Digraph` data type is identical to `Graph` except that `addEdge` only calls `add()` once, and it has an instance
+method `reverese()` that returns a copy with all its edges reversed.
+
+##### Reachability in digraphs
+
+DFS marks all the vertices in a digraph reachable from a given set of sources in time proportional to the sum of the
+outdegrees of the vertices marked.
+
+```java
+import edu.princeton.cs.algorithms.Bag;
+import edu.princeton.cs.introcs.In;
+import edu.princeton.cs.introcs.StdOut;
+
+public class DirectedDFS {
+
+    private boolean[] marked;
+
+    public DirectedDFS(Digraph G, int s) {
+        marked = new boolean[G.V()];
+        dfs(G, s);
+    }
+
+    public DirectedDFS(Digraph G, Iterable<Integer> sources) {
+        marked = new boolean[G.V()];
+        for (int s : sources) {
+            if (!marked[s]) {
+                dfs(G, s);
+            }
+        }
+    }
+
+    private void dfs(Digraph G, int v) {
+        marked[v] = true;
+        for (int w : G.adj(v)) {
+            if (!marked[w]) {
+                dfs(G, w);
+            }
+        }
+    }
+
+    public boolean marked(int v) {
+        return marked[v];
+    }
+
+    public static void main(String[] args) {
+        In in = new In(args[0]);
+        Digraph G = new Digraph(in);
+
+        Bag<Integer> sources = new Bag<Integer>();
+        for (int i = 1; i < args.length; i++) {
+            sources.add(Integer.parseInt(args[1]));
+        }
+
+        DirectedDFS reachable = new DirectedDFS(G, sources);
+
+        for (int v = 0; v < G.V(); v++) {
+            if (reachable.marked(v)) {
+                StdOut.print(v + " ");
+            }
+        }
+        StdOut.println();
+    }
+}
+```
+This implementation of depth-first search provides clients the ability to test which vertices are reachable from a
+given vertex or a given set of vertices.
+
+##### Cycles and DAGs
+
+A *directed acyclic graph* (DAG) is a digraph with no directed cycles.
+
+```java
+import edu.princeton.cs.algorithms.Stack;
+
+public class DirectedCycle {
+
+    private boolean[] marked;
+    private int[] edgeTo;
+    private Stack<Integer> cycle;   // vertices on a cycle (if one exists)
+    private boolean[] onStack;
+
+    public DirectedCycle(Digraph G) {
+        onStack = new boolean[G.V()];
+        edgeTo = new int[G.V()];
+        marked = new boolean[G.V()];
+        for (int v = 0; v < G.V(); v++) {
+            if (!marked[v]) {
+                dfs(G, v);
+            }
+        }
+    }
+
+    private void dfs(Digraph G, int v) {
+        onStack[v] = true;
+        marked[v] = true;
+        for (int w : G.adj(v)) {
+            if (this.hasCycle()) {
+                return;
+            } else if (!marked[w]) {
+                edgeTo[w] = v;
+                dfs(G, w);
+            } else if (onStack[w]) {
+                cycle = new Stack<Integer>();
+                for (int x = v; x != w; x = edgeTo[x]) {
+                    cycle.push(x);
+                }
+                cycle.push(w);
+                cycle.push(v);
+            }
+        }
+        onStack[v] = false;
+    }
+
+    public boolean hasCycle() {
+        return cycle != null;
+    }
+
+    public Iterable<Integer> cycle() {
+        return cycle;
+    }
+}
+```
+This class adds to our standard recursive `dfs()` a boolean array `onStack[]` to keep track of the vertices for which
+the recursive call has not completed. when it finds an edge `v->w` to a vertex `w` that is on the stack, it has
+discovered a directed cycle, which it can recover by following `edgeTo[]` links.
+
+A digraph has a topological order if and only if it is a DAG. If the the digraph has a directed cycle, it has no
+topological order. Conversely, the algorithm that we are about to examine computes a topological order for any given
+DAG.
+
+```java
+import edu.princeton.cs.algorithms.Queue;
+import edu.princeton.cs.algorithms.Stack;
+
+public class DepthFirstOrder {
+
+    private boolean[] marked;
+
+    private Queue<Integer> pre;
+    private Queue<Integer> post;
+    private Stack<Integer> reversePost;
+
+    public DepthFirstOrder(Digraph G) {
+        pre = new Queue<Integer>();
+        post = new Queue<Integer>();
+        reversePost = new Stack<Integer>();
+        marked = new boolean[G.V()];
+
+        for (int v = 0; v < G.V(); v++) {
+            if (!marked[v]) {
+                dfs(G, v);
+            }
+        }
+    }
+
+    private void dfs(Digraph G, int v) {
+        pre.enqueue(v);
+
+        marked[v] = true;
+        for (int w : G.adj(v)) {
+            if (!marked[w]) {
+                dfs(G, w);
+            }
+        }
+        post.enqueue(v);
+        reversePost.push(v);
+    }
+
+    public Iterable<Integer> preorder() {
+        return pre;
+    }
+
+    public Iterable<Integer> postorder() {
+        return post;
+    }
+
+    public Iterable<Integer> reversePostorder() {
+        return reversePost;
+    }
+}
+```
+this class enables clients to iterate through the vertices in various orders defined by depth-first search. This
+ability is very useful in the development of advanced digraph-processing algorithms, because the recursive nature of the
+search enables us to prove properties of the computation.
+
+```java
+import edu.princeton.cs.introcs.StdOut;
+
+public class Topological {
+
+    private Iterable<Integer> order;    // topological order
+
+    public Topological(Digraph G) {
+
+        DirectedCycle cyclefinder = new DirectedCycle(G);
+        if (!cyclefinder.hasCycle()) {
+            DepthFirstOrder dfs = new DepthFirstOrder(G);
+            order = dfs.reversePostorder();
+        }
+    }
+
+    public Iterable<Integer> order() {
+        return order;
+    }
+
+    public boolean isDAG() {
+        return order != null;
+    }
+
+    public static void main(String[] args) {
+        String filename = args[0];
+        String delimiter = args[1];
+        SymbolDigraph sg = new SymbolDigraph(filename, delimiter);
+
+        Topological top = new Topological(sg.digraph());
+
+        for (int v : top.order()) {
+            StdOut.println(sg.nameOf(v));
+        }
+    }
+}
+```
+This `DepthFirstOrder` and `DirectedCycle` client return a topological order for a DAG. The test client solves the
+precedence-constrained scheduling problem for a `SymbolDigraph`. The instance method `order()` returns `null` if the
+given digraph is not a DAG and an iterator giving the vertices in topological order otherwise. 
+
+Reverse postorder in a DAG is a topological sort. Consider any edge `v->w`. One of the following three cases must hold
+when `dfs(v)` is called:
+* `dfs(w)` has already been called and has returned (`w` is marked).
+* `difs(w)` has not yet been called (`w` is unmarked), so `v->w` will cause `dfs(w) to be called (and return), either
+directly or indirectly, before `dfs(v)` returns.
+* `dfs(w)` has been called and has not yet returned when `dfs(v)` is called. The keys to the proof is that this case is
+impossible in a DAG, because the recursive call chain implies a path from `w` to `v` and `v->w` would complete a
+directed cycle.
+
+In the two possible cases, `dfs(w)` is done before `dfs(v)`, so `w` appears *before* `v` in postorder and *after* `v`
+in reverse postoreder. Thus, each edge `v->w` points from a vertex earlier in the order to a vertex later in the order,
+as desired.
+
+With DFS, we can topologically sort a DAG in time proportional to *E* + *V*. The code uses depth-first search to ensure
+that the graph has no directed cycles, and another to do the reverse postorder ordering. Both involve examining all the
+edges and all the vertices, and thus take time proportional to *E* + *V*.
+
+##### Strong connectivity in digraphs
+
+Two vertices `v` and `w` are *strongly connected* if they are mutually reachable: that is, if there exists a direct path
+from `v` to `w` and a directed path from `w` to `v`. A digraph is *strongly connected* if all its vertices are strongly
+connected to one another.
+
+```java
+public class KosarajuSharirSCC {
+
+    private boolean[] marked;       // reachable vertices
+    private int[] id;               // component identifiers
+    private int count;              // number of strong components
+
+    public KosarajuSharirSCC(Digraph G) {
+        marked = new boolean[G.V()];
+        id = new int[G.V()];
+        DepthFirstOrder order = new DepthFirstOrder(G.reverse());
+        for (int s : order.reversePostorder()) {
+            if (!marked[s]) {
+                dfs(G, s);
+                count++;
+            }
+        }
+    }
+
+    private void dfs(Digraph G, int v) {
+        marked[v] = true;
+        id[v] = count;
+        for (int w : G.adj(v)) {
+            if (!marked[w]) {
+                dfs(G, w);
+            }
+        }
+    }
+
+    public boolean stronglyConnected(int v, int w) {
+        return id[v] == id[w];
+    }
+
+    public int id(int v) {
+        return id[v];
+    }
+
+    public int count() {
+        return count;
+    }
+}
+```
+This implementation differs from `CC` only in few parts. To find strong components, it does a depth-first search in the
+reverse digraph to produce a vertex order (reverse postorder of that search) for use in a depth-first search of the 
+given digraph.
+
+Let *C* be a strong component in a digraph *G* and let `v` be any vertex nto in *C*. If there is an edge *e* in *G*
+pointing from any vertex in *C* to `v`, then vertex `v` appears before *every* vertex in *C* in the reverse postorder
+of *G* <sup>*R*</sup>.
+
+The Kosaraju-Sharir algorithm identifies the strong components of a digraph *G*.<br>By induction on the number of
+strong components identified in the DFS of *G*. After the algorithm has identified the first *i* components, we assume
+(by our inductive hypothesis) that the vertices in the first *i* components are marked and the vertices in the
+remaining components are unmarked. Let `s` be the unmarked vertex that appears first in the reverse postorder of *G* 
+<sup>*R*</sup>. Then, the constructor call `dfs(G, s)` will visit every vertex in the strong component containing `s`
+(which we refer to as component *i*+1) and only those vertices because:
+* Vertices in the first *i* components will not be visited (because they are allready marked).
+* Vertices in component *i*+1 are not yet marked are reachable from `s` using only other vertices in component *i*+1 (so
+will be visited and marked).
+* Vertices in components after *i*+1 will not be visited (or marked): Consider (for the sake of contradiction) the first
+such vertex `v` that is visited. Let *e* be and edge that goes from a vertex in component *i*+1 to `v`. By the postorder
+lemma, `v` appears in the reverse postorder before every vertex in component *i*+1 (including `s`). This contradicts
+the definition of `s`.
+
+The Kosaraju-Sharir algorithm uses preprocessing time and space proportional to *E* + *V* to support constant-time
+strong connectivity queries in a digraph. The algorithm computes the reverse of the digraph and does two depth-first 
+searches. Each of these three steps takes time proportional to *E* + *V*. The reverse copy of the digraph uses space
+proportional to *E* + *V*.
+
+The  *transitive closure* of a digraph *G* is another digraph with the same set of vertices, but with an edge from `v`
+to `w` in the transitive closure if and only if `w` is reachable from *G*.
+
+```java
+public class TransitiveClosure {
+
+    private DirectedDFS[] all;
+
+    TransitiveClosure(Digraph G) {
+        all = new DirectedDFS[G.V()];
+        for (int v = 0; v < G.V(); v++) {
+            all[v] = new DirectedDFS(G, v);
+        }
+    }
+
+    boolean reachable(int v, int w) {
+        return all[v].marked(w);
+    }
+}
+```
+All-pairs reachability
+
+###### Summary
+
+problem                                   |solution
+:----------------------------------------:|:-------------------------:
+*single- and multiple-source reachability*|`DirectedDFS`
+*single-source directed paths*            |`DepthFirstDirectedPaths`
+*single-source shortest directed paths*   |`BreadthFirstDirectedPaths`
+*directed cycle detection*                |`DirectedCycle`
+*depth-first vertex orders*               |`DepthFirstOrder`
+*precedence-constrained scheduling*       |`Topological`
+*topological sort*                        |`Topological`
+*strong connectivity*                     |`KosarajuSharirSCC`
+*all-pairs reachability*                  |`TransitiveClosure`
+
+Digraph-processing problems addressed in this section

@@ -55,6 +55,12 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Symbol graphs
   - [x] Summary
 - [ ] 4.2 Directed Graphs
+  - [ ] Glossary
+  - [ ] Digraph data type
+  - [ ] Reachability in digraphs
+  - [ ] Cycles and DAGs
+  - [ ] Strong connectivity in digraphs
+  - [ ] Summary
 - [ ] 4.3 Minimum Spanning Trees
 - [ ] 4.4 Shortest Paths
 - [ ] Summary
