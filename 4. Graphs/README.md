@@ -908,3 +908,388 @@ problem                                   |solution
 *all-pairs reachability*                  |`TransitiveClosure`
 
 Digraph-processing problems addressed in this section
+
+#### 4.3 Undirected graphs
+
+Recall that a *spanning tree* of a graph is a connected subgraph with no cycles that includes all the vertices. A 
+*minimum spanning tree* (MST) of an edge weighted graph is a spanning tree whose weight (the sum of the weights of its
+edges) is no larger than the weight of any other spanning tree.
+
+application            |vertex     |edge
+:---------------------:|:---------:|:---:
+*circuit*              |component  |wire
+*airline*              |airport    |flight route
+*power<br>distribution*|power plant|transmission<br>lines
+*image<br>analysis*    |feature    |proximity<br>relationship
+
+Typical MST applications
+
+##### Underlying principles
+
+Recall the two defining properties of a tree:
+* Adding an edge that connects two vertices in a tree creates a unique cycle.
+* Removing an edge from a tree breaks it into two separate subtrees.
+
+A *cut* of a graph is a partition of its vertices into two nonempty disjoint sets. A *crossing edge* of a cut is an
+edge that connects a vertex in one set with a vertex in the other.
+
+Given any cut in an edge-weighted graph, the crossing edge of minimum weight is in the MST of the graph. Let *e* be the
+crossing edge of minimum weight and let *T* be the MST. The proof is by contradiction: suppose that *T* does not contain
+*e*. Now consider the graph formed by adding *e* to *T*. This graph has a cycle that contains *e*, and that cycle must
+contain at least one other crossing edge - say, *f*, which has higher weight than *e* (since *e* is minimal and all edge
+weights are different). We can get a spanning tree of strictly lower weight by deleting *f* and adding *e*,
+contradicting the assumed minimality of *T*.
+
+(Greedy MST algorithm) The following method colours black edges in the MST of any connected edge-weighted graph with *V*
+vertices: starting with all edges colored gray, find a cut with no black crossing edges, colour its minimum-weight
+crossing edge black, and continue until *V* - 1 edges have been coloured black. For simplicity, we assume in the
+discussion that the edge weights are all different, though the proposition is still true when that is not the case. By
+the cut property, any edge that is coloured balck is in the MST. If fewer than *V* - 1 edges are black, a cut with no
+black crossing edges exists (recall that we assume the graph to be connected). Once *V* - 1 edges are black, the black
+edges form a spanning tree.
+
+##### Edge-weighted graph data type
+
+`public class Edge implements Comparable<Edge>` <br>
+<br>
+`Edge(int v, int w, double weight)` *initializing constructor* <br>
+`double weight()` *weight of this edge* <br>
+`int either()` *either of this edge's vertices* <br>
+`int other(int v)` *the other vertex*
+`int compareTo(Edge that)` *compare `this` edge to `that`* <br>
+`String toString()` *string representation* <br>
+API for a weighted edge
+
+<br>
+
+`public class EdgeWeightedGraph` <br>
+<br>
+`EdgeWeightedGraph(int V)` *create a `V`-vertex graph with no edges* <br>
+`EdgeWeightedGraph(In in)` *create a graph from input stream `in`* <br>
+`int V()` *number of vertices* <br>
+`int E()` *number of edges* <br>
+`void addEdge(Edge e)` *add edge `e` to this graph* <br>
+`Iterable<Edge> adj(int v)` *all edges incident to vertex `v`* <br>
+`Iterable<Edge> edges()` *all edges in this graph* <br>
+`String toString()` *string representation* <br>
+API for an edge-weighted graph
+
+```java
+public class Edge implements Comparable<Edge> {
+
+    private final int v;                // one vertex
+    private final int w;                // the other vertex
+    private final double weight;        // edge weight
+
+    public Edge(int v, int w, double weight) {
+        this.v = v;
+        this.w = w;
+        this.weight = weight;
+    }
+
+    public double weight() {
+        return weight;
+    }
+
+    public int either() {
+        return v;
+    }
+
+    public int other(int vertex) {
+        if (vertex == v) {
+            return w;
+        } else if (vertex == w) {
+            return v;
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    public int compareTo(Edge that) {
+        if (this.weight() < that.weight()) {
+            return -1;
+        } else if (this.weight() > that.weight()) {
+            return +1;
+        } else return 0;
+    }
+
+    public String toString() {
+        return String.format("%d-%d %.5f", v, w, weight);
+    }
+}
+```
+This data type provides the methods `either()` and `other()` so that a client can use `other(v)` to find the other
+vertex when it know `v`. When neither vertex is known, a client can use the idiomatic code `int v = e.either(),
+w = e.other(v);` to access and `Edge e`'s two vertices.
+
+```java
+import edu.princeton.cs.algorithms.Bag;
+
+public class EdgeWeightedGraph {
+
+    private final int V;            // number of vertices
+    private int E;                  // number of edges
+    private Bag<Edge>[] adj;        // adjacency list
+
+    public EdgeWeightedGraph(int V) {
+        this.V = V;
+        this.E = E;
+        adj = (Bag<Edge>[]) new Bag[V];
+        for (int v = 0; v < V; v++) {
+            adj[v] = new Bag<Edge>();
+        }
+    }
+
+    public int V() {
+        return V;
+    }
+
+    public int E() {
+        return E;
+    }
+
+    public void addEdge(Edge e) {
+        int v = e.either();
+        int w = e.other(v);
+        adj[v].add(e);
+        adj[w].add(e);
+        E++;
+    }
+
+    public Iterable<Edge> adj(int v) {
+        return adj[v];
+    }
+
+    public Iterable<Edge> edges() {
+        Bag<Edge> bag = new Bag<Edge>();
+        for (int v = 0; v < V; v++) {
+            for (Edge e : adj[v]) {
+                if (e.other(v) > v) {
+                    bag.add(e);
+                }
+            }
+        }
+        return bag;
+    }
+}
+```
+This implementation maintains a vertex-indexed array of lists of edges. As with `Graph`, every edge appears twice; if
+an edge connects `v` and `w`, it appears in both `v`'s list and in `w`'s list. The `edges()` method puts all the edges
+in a `Bag`.
+
+##### Prim's algorithm
+
+Prim's algorithm computes the MST of any connected edge-weighted graph. The growing tree defines a cut with no black
+edges; the algorithm takes the crossing edge of minimal weight, so it is successively colouring edges black in
+accordance with the greedy algorithm. 
+
+The lazy version of Prim's algorithm uses space proporional to *E* and time proportional to *E* log *E* (in the worst
+case) to compute the MST of a connected edge-weighted graph with *E* edges and *V* vertices. The bottleneck in the
+algorithm is the number of edge-weight comparisons in the priority-queue methods `insert()` and `delMin()`. The number
+of edges on cost of an insertion is ~lg *E* and the cost to delete the minimum is ~2 lg *E*. Since at most *E* edges
+are inserted and at most *E* are deleted, the time bound follows.
+
+```java
+import edu.princeton.cs.algorithms.MinPQ;
+import edu.princeton.cs.algorithms.Queue;
+
+public class LazyPrimMST {
+
+    private boolean[] marked;           // MST vertices
+    private double weight;              // total weight of MST
+    private Queue<Edge> mst;            // MST edges
+    private MinPQ<Edge> pq;             // crossing (and ineligible) edges
+
+    public LazyPrimMST(EdgeWeightedGraph G) {
+        pq = new MinPQ<Edge>();
+        marked = new boolean[G.V()];
+        mst = new Queue<Edge>();
+
+        visit(G, 0);                    // assumes G is connected
+        while (!pq.isEmpty()) {
+            Edge e = pq.delMin();       // Get lowest-weight
+            int v = e.either();         // edge from pq.
+            int w = e.other(v);
+            if (marked[v] && marked[w]) {
+                continue;               // skip if ineligible
+            }
+            mst.enqueue(e);             // Add edge to tree.
+            if (!marked[v]) {
+                visit(G, v);            // Add vertex to tree
+            }
+            if (!marked[w]) {
+                visit(G, w);            // (either v or w).
+            }
+        }
+    }
+
+    private void visit(EdgeWeightedGraph G, int v) {
+        // Mark v and add to pq all edges from v to unmarked vertices.
+        marked[v] = true;
+        for (Edge e : G.adj(v)) {
+            if (!marked[e.other(v)]) {
+                pq.insert(e);
+            }
+        }
+    }
+
+    public Iterable<Edge> edges() {
+        return mst;
+    }
+
+    public double weight() {
+        return weight;
+    }
+}
+```
+This implementation of Prim's algorithm uses a priority queue to hold crossing edges, a vertex-indexed array to mark
+tree vertices, and a queue to hold MST edges. This implementation is a lazy approach where we leave ineligible edges in
+the priority queue.
+
+##### Eager version of Prim's algorithm
+
+```java
+import edu.princeton.cs.algorithms.IndexMinPQ;
+import edu.princeton.cs.algorithms.Queue;
+
+public class PrimMST {
+
+    private Edge[] edgeTo;          // shortest edge from tree vertex
+    private double[] distTo;        // distTo[w] = edgeTo[w].weight()
+    private boolean[] marked;       // true if v on tree
+    private IndexMinPQ<Double> pq;  // eligible crossing edges
+
+    public PrimMST(EdgeWeightedGraph G) {
+        edgeTo = new Edge[G.V()];
+        distTo = new double[G.V()];
+        marked = new boolean[G.V()];
+        for (int v = 0; v < G.V(); v++) {
+            distTo[v] = Double.POSITIVE_INFINITY;
+        }
+        pq = new IndexMinPQ<Double>(G.V());
+
+        distTo[0] = 0.0;
+        pq.insert(0, 0.0);  // Initialize pq with 0, weight 0.
+        while (!pq.isEmpty()) {
+            visit(G, pq.delMin());  // Add closest vertex to tree
+        }
+    }
+
+    private void visit(EdgeWeightedGraph G, int v) {
+        // Add v to tree; update data structures.
+        marked[v] = true;
+        for (Edge e : G.adj(v)) {
+            int w = e.other(v);
+            if (marked[w]) {
+                continue;           // v-w is ineligible.
+            }
+            if (e.weight() < distTo[w]) {
+                // Edge e is new best connection from tree to w.
+                edgeTo[w] = e;
+                distTo[w] = e.weight();
+                if (pq.contains(w)) {
+                    pq.changeKey(w, distTo[w]);
+                } else {
+                    pq.insert(w, distTo[w]);
+                }
+            }
+        }
+    }
+
+    public Iterable<Edge> edges() {
+        Queue<Edge> mst = new Queue<Edge>();
+        for (int v = 0; v < edgeTo.length; v++) {
+            Edge e = edgeTo[v];
+            if (e != null) {
+                mst.enqueue(e);
+            }
+        }
+        return mst;
+    }
+
+    public double weight() {
+        double weight = 0.0;
+        for (Edge e : edges())
+            weight += e.weight();
+        return weight;
+    }
+}
+```
+This implementation of Prim's algorithm keeps eligible crossing edges on an index priority queue.
+
+The eager version of Prim's algorithm uses extra space proportional to *V* and time proportional to to *E* log *V* (in
+the worst case) to compute the MST of connected edge-weighted graph with *E* edges and *V* vertices. The number of
+vertices on the priority queue is at most *V*, and there are three vertex-indexed arrays, which implies the space bound.
+The algorithm uses *V insert* operations, *V delete the minimum* operations, and (in the worst case) *E change priority*
+operations. These counts, coupled with the fact that our heap-based implementation of the index priority queue
+implements all these operations in time proportional to log *V*, imply the time bound.
+
+##### Kruskal's algorithm
+
+Kruskal's algorithm computes the MST of any connected edge-weighted graph. If the next edge to be considered does not
+form a cycle with black edges, it crosses a cut defined by the set of vertices connected to one of the edge's vertices
+by black edges (and its complement). Since the edge does not create a cycle, it is the only crossing edge seen so far,
+and since we consider the edges in sorted order, it is a crossing edge of minimum weight. Thus, the algorithm is
+successively taking a minimal-weight crossing edge, in accordance with the greedy algorithm.
+
+Kruskal's algorithm uses space proportional to *E* and time proportional to *E* log *E* (in the worst case) to compute
+the MST of an edge-weighted connected graph with *E* edges and *V* vertices. The implementation uses the priority-queue
+constructor that initializes the priority queue with all the edges, at a cost of at most *E* compares. After the
+priority queue is built, the argument is the same as for Prim's algorithm. The number of edges on the priority queue is
+at most *E*, which gives the space bound, and the cost per operation is at most 2 lg *E* compares, which gives the time
+bound. Kruskal's algorithm also performs up to *E* `connected()` and *V* `union()` operations, but that cost does not
+contribute to the *E* log *E* order of growth of the total running time.
+
+```java
+import edu.princeton.cs.algorithms.MinPQ;
+import edu.princeton.cs.algorithms.Queue;
+import edu.princeton.cs.algorithms.UF;
+
+public class KruskalMST {
+
+    private Queue<Edge> mst;
+    private double weight;                                  // weight of MST
+
+    public KruskalMST(EdgeWeightedGraph G) {
+        mst = new Queue<Edge>();
+        MinPQ<Edge> pq = new MinPQ<Edge>();
+        for (Edge e : G.edgs()) {
+            pq.insert(e);
+        }
+        UF uf = new UF(G.V());
+
+        while (!pq.isEmpty() && mst.size() < G.V() - 1) {
+            Edge e = pq.delMin();                           // Get min weight edge on pq
+            int v = e.either();                             // and its vertices.
+            int w = e.other(v);
+            if (uf.connected(v, w)) {
+                continue;                                   // Ignore ineligible edges.
+            }
+            uf.union(v, w);                                 // Merge components.
+            mst.enqueue(e);                                 // Add edge to mst.
+        }
+    }
+
+    public Iterable<Edge> edges() {
+        return mst;
+    }
+
+    public double weight() {
+        return weight;
+    }
+}
+```
+This implementation of Kruskal's algorithm uses a queue to hold MST edges, a priority queue to hold edges not yet
+examined, and a union-find data structure for identifying ineligible edges. The MST edges are returned to the client in
+increasing order of their weights. 
+
+algorithm       |space| time
+:--------------:|:---:|:----:
+*lazy prim*     |*E*  |*E* log *E*
+*eager prim*    |*V*  |*E* log *V*
+*Kruskal*       |*E*  |*E* log *E*
+*Fredman-Tarjan*|*V*  |*E* + *V* log *V*
+*Chazelle*      |*V*  |*very, very nearly,<br>but not quite E*
+*impossible?*   |*V*  |*E*?
+
+Performance characteristics of MST algorithms
