@@ -1293,6 +1293,7 @@ algorithm       |space<sup>*</sup>|time<sup>*</sup>
 *Fredman-Tarjan*|*V*              |*E* + *V* log *V*
 *Chazelle*      |*V*              |*very, very nearly,<br>but not quite E*
 *impossible?*   |*V*              |*E*?
+
 <sup>*</sup> worst-case order of growth for *V* vertices and *E* edges
 
 Performance characteristics of MST algorithms  
