@@ -1450,14 +1450,14 @@ API for shortest-paths implementations
 ##### Theoretical basis for shortest-paths algorithms
 
 Let *G* be an edge-weighted digraph, with `s` a source vertex in *G* and `distTo[]` a vertex-indexed array of path
-lengths in *G* such that, for all `v` reachable from `s`, the value of `distTo[v]` is the lenght of *some* path from `s`
+lengths in *G* such that, for all `v` reachable from `s`, the value of `distTo[v]` is the length of *some* path from `s`
 to `v` with `distTo[v]` equal to infinity for all `v` not reachable from `s`. These values are the lenghts of *shortest*
 paths if and only if they satisfy `distTo[s] = 0` and `distTo[w] <= distTo[v] + e.weight()` for each edge `e` from `v`
 to `w` (or, in other words, no edge is eligible).
 
 Generic shortest-paths algorithm: Initialize `distTo[s]` to 0 and all other `distTo[]` values to infinity, and proceed
 as follows: *Relax any edge in *G*, continuing until no edge is eligible.* For all vertices `w` reachable from `s`, the
-value of `distTo[w]` after this computation is the length of a shrotest path from `s` to `w` (and `edgeTo[w]` is the
+value of `distTo[w]` after this computation is the length of a shortest path from `s` to `w` (and `edgeTo[w]` is the
 last edge on such a path).
 
 Relaxing and edge `v->w` always sets `distTo[w]` to the length of some path from `s` (and `edgeTo[w]` to the last edge
@@ -1574,7 +1574,7 @@ All-pairs shortest paths
 ##### Acyclic edge-weighted digraphs
 
 By relaxing vertices in topological order, we can solve the singe source shortest-paths problem for edge-weighted DAGs
-in time proportional to *E* + *V*. Every edge `v->w` is realxed exactly once, when `v` is relaxed, leaving `distTo[w] <=
+in time proportional to *E* + *V*. Every edge `v->w` is relaxed exactly once, when `v` is relaxed, leaving `distTo[w] <=
 distTo[v] + e.weight()`. This inequality holds until the algorithm completes, since `distTo[v]` never changes (because
 of the topological order, no edge entering `v` will be processed after `v` is relaxed) and `distTo[w]` can only decrease
 (any relaxation can only decrease a `distTo[]` value). Thus, after all vertices reachable from `s` have been added to
@@ -1659,3 +1659,60 @@ its start vertex to its end vertex with weight equal to its duration. For each p
 zero-weight edge from the end vertex corresponding to `v` to the beginning vertex corresponding to `w`. Also add
 zero-weight edges from the source to each job's start vertex and from each job's end vertex to the sink. Now, schedule
 each job at the time given by the length of its longest path from the source.
+
+```java
+public class CPM {
+
+    public static void main(String[] args) {
+        int n = StdIn.readInt();
+        StdIn.readLine();
+        edu.princeton.cs.algorithms.EdgeWeightedDigraph G;
+        G = new EdgeWeightedDigraph(2 * n + 2);
+
+        int s = 2 * n;
+        int t = 2 * n + 1;
+
+        for (int i = 0; i < n; i++) {
+            String[] a = StdIn.readLine().split("\\s+");
+            double duration = Double.parseDouble(a[0]);
+            G.addEdge(new DirectedEdge(i, i + n, duration));
+            G.addEdge(new DirectedEdge(s, i, 0.0));
+            G.addEdge(new DirectedEdge(i + n, t, 0.0));
+            for (int j = 1; j < a.length; j++) {
+                int successor = Integer.parseInt(a[j]);
+                G.addEdge(new DirectedEdge(i + n, successor, 0.0));
+            }
+        }
+
+        AcyclicLP lp = new AcyclicLP(G, s);
+
+        StdOut.println("Start time:");
+        for (int i = 0; i < n; i++) {
+            StdOut.printf("%4d: %5.1f\n", i, lp.distTo(i));
+        }
+        StdOut.printf("Finish time: %5.1f\n", lp.distTo(t));
+    }
+}
+```
+This implementation of the critical path method for job scheduling reduces the problem directly to the longest-path
+problem in edge-weighted DAGs. It builds an edge-weighted digraph (which must be a DAG) from the job-scheduling problem
+specification, as prescribed by the critical path method, then uses `AcyclicLP` to find the longest-paths tree and to 
+print the longest-paths lengths, which are precisely the start times for each job.
+
+The critical path method solves the parallel precedence-constrained scheduling problem in linear time. Why does the CPM
+approach work? The correctness of the algorithm rests in two facts. First, every path in the DAG is a sequence of job
+starts and job finishes, separated by zero-weight precedence constraints - the length of any path from the source `s` to
+any vertex `v` in the graph is a lower bound on the start/finish time represented by `v`, because we could not better
+than scheduling those jobs one after another on the same machine. In particular, the length of the longest path from 
+`s` to the sink `t` is a *lower* bound on the finish time of all the jobs. Second, all the start and finish times 
+implied by longest paths are *feasible* - every job starts after the finish of all the jobs where it appears as a 
+successor in a precedence constraint, because the satrt time is the length of the *longest* path from the source to
+it. In particular, the length of the longest path from `s` to `t` is an *upper* bound on the finish time of all the
+jobs.
+
+Parallel job scheduling with relative deadlines is a shortest-paths problem in edge-weighted digraphs (with cycles
+and negative weights allowed). Use the same consruction as above, adding and edge for each deadline: if job `v` has
+to start with `d` time units of the start job `w`, add an edge from `v` to `w` with *negative* weight `d`. Then
+convert to a shortest-paths problem by negating all the weights in the digraph. The proof of correctness applies,
+*provided that the schedule is feasible*. Determining whether a schedule is feasible is part of the computational 
+burden, as you will see.
