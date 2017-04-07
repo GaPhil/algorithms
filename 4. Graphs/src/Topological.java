@@ -1,3 +1,4 @@
+import edu.princeton.cs.algorithms.EdgeWeightedDirectedCycle;
 import edu.princeton.cs.introcs.StdOut;
 
 public class Topological {
@@ -9,12 +10,20 @@ public class Topological {
         DirectedCycle cyclefinder = new DirectedCycle(G);
         if (!cyclefinder.hasCycle()) {
             DepthFirstOrder dfs = new DepthFirstOrder(G);
-            order = dfs.reversePostorder();
+            order = dfs.reversePost();
         }
     }
 
     public Iterable<Integer> order() {
         return order;
+    }
+
+    public Topological(EdgeWeightedDigraph G) {
+        EdgeWeightedDirectedCycle finder = new EdgeWeightedDirectedCycle(G);
+        if (!finder.hasCycle()) {
+            DepthFirstOrder dfs = new DepthFirstOrder(G);
+            order = dfs.reversePost();
+        }
     }
 
     public boolean isDAG() {
@@ -31,5 +40,9 @@ public class Topological {
         for (int v : top.order()) {
             StdOut.println(sg.nameOf(v));
         }
+    }
+
+    public boolean hasOrder() {
+        return order != null;
     }
 }
