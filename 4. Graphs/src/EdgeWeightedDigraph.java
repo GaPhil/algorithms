@@ -6,14 +6,17 @@ public class EdgeWeightedDigraph {
     private final int V;                // number of vertices
     private int E;                      // number of edges
     private Bag<DirectedEdge>[] adj;     // adjacency list
+    private int[] indegree;             // indegree[v] = indegree of vertex v
+
 
     public EdgeWeightedDigraph(int V) {
+        if (V < 0) throw new IllegalArgumentException("Number of vertices in a Digraph must be nonnegative");
         this.V = V;
         this.E = 0;
+        this.indegree = new int[V];
         adj = (Bag<DirectedEdge>[]) new Bag[V];
-        for (int v = 0; v < V; v++) {
+        for (int v = 0; v < V; v++)
             adj[v] = new Bag<DirectedEdge>();
-        }
     }
 
     public EdgeWeightedDigraph(In in) {

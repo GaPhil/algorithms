@@ -10,6 +10,9 @@ public class DepthFirstOrder {
     private int[] pre;
     private int[] post;
     private Stack<Integer> reversePost;
+    private int preCounter;            // counter or preorder numbering
+    private int postCounter;           // counter for postorder numbering
+
 
     public DepthFirstOrder(Digraph G) {
         preorder = new Queue<Integer>();
