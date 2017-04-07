@@ -1706,13 +1706,190 @@ any vertex `v` in the graph is a lower bound on the start/finish time represente
 than scheduling those jobs one after another on the same machine. In particular, the length of the longest path from 
 `s` to the sink `t` is a *lower* bound on the finish time of all the jobs. Second, all the start and finish times 
 implied by longest paths are *feasible* - every job starts after the finish of all the jobs where it appears as a 
-successor in a precedence constraint, because the satrt time is the length of the *longest* path from the source to
+successor in a precedence constraint, because the start time is the length of the *longest* path from the source to
 it. In particular, the length of the longest path from `s` to `t` is an *upper* bound on the finish time of all the
 jobs.
 
 Parallel job scheduling with relative deadlines is a shortest-paths problem in edge-weighted digraphs (with cycles
-and negative weights allowed). Use the same consruction as above, adding and edge for each deadline: if job `v` has
+and negative weights allowed). Use the same construction as above, adding and edge for each deadline: if job `v` has
 to start with `d` time units of the start job `w`, add an edge from `v` to `w` with *negative* weight `d`. Then
 convert to a shortest-paths problem by negating all the weights in the digraph. The proof of correctness applies,
 *provided that the schedule is feasible*. Determining whether a schedule is feasible is part of the computational 
 burden, as you will see.
+
+##### Shortest paths in general edge-weighted digraphs
+
+A *negative cycle* in an edge-weighted digraph is a directed cycle whose total weight (sum of the weights of its edges)
+is negative.
+
+There exists a shorter path from `s` to `v` in an edge-weighted digraph if and only if there exists at least one
+directed path from `s` to `v` *and* no vertex on any directed path from `s` to `v` is on a negative cycle.
+
+Bellman-Ford algorithm: The following method solves the single-source shortest-paths problem from a given source `s`
+for any edge-weighted digraph with *V* vertices and no negative cycles reachable from `s`: Initialize `distTo[s]` to 0
+and all other `distTo[]` values to infinity. Then, considering the digraphs's edges in any order, relax all edge. Make
+*V* such passes. The Bellman-Ford algorithm takes time proportional to *E V* and extra space proportional to *V*. Each
+of the *V* passes relaxes *E* edges.
+
+The queue-based implementation of the Bellman-Ford algorithm solves the single-source shortest-paths problem from a 
+given source `s` (or finds a negative cycle reachable from `s`) for any edge-weighted digraph with *E* edges and *V*
+vertices, in time proportional to *E V* and extra space proportional to *V*, in the worst case. If there is no
+negative cycle reachable from `s`, the algorithm terminates after relaxations corresponding to the (*V*-1)st pass of
+the generic algorithm. If there does exist a negative cycle reachable from `s`, the queue never empties. If any edge is
+relaxed during the *V*th pass of the generic algorithm, then the `edgeTo[]` array has a directed cycle and any such 
+cycle is a negative cycle. In the worst case, the algorithm mimics the generic algorithm and relaxes all *E* edges in
+each of *V* passes.
+
+```java
+public class BellmanFordSP {
+
+    private double[] distTo;                    // length of path to v
+    private DirectedEdge[] edgeTo;              // last edge on path to v
+    private boolean[] onQueue;                  // Is this vertex on the queue?
+    private Queue<Integer> queue;               // vertices being relaxed
+    private int cost;                           // number of calls to relax
+    private Iterable<DirectedEdge> cycle;       // negative cycle in edgeTo[]?
+
+    public BellmanFordSP(EdgeWeightedDigraph G, int s) {
+        distTo = new double[G.V()];
+        edgeTo = new DirectedEdge[G.V()];
+        onQueue = new boolean[G.V()];
+        queue = new Queue<Integer>();
+        for (int v = 0; v < G.V(); v++) {
+            distTo[v] = Double.POSITIVE_INFINITY;
+        }
+        distTo[s] = 0.0;
+        queue.enqueue(s);
+        onQueue[s] = true;
+        while (!queue.isEmpty() && !hasNegativeCycle()) {
+            int v = queue.dequeue();
+            onQueue[v] = false;
+            relax(G, v);
+        }
+    }
+
+    private void relax(EdgeWeightedDigraph G, int v) {
+        for (DirectedEdge e : G.adj(v)) {
+            int w = e.to();
+            if (distTo[w] > distTo[v] + e.weight()) {
+                distTo[w] = distTo[v] + e.weight();
+                edgeTo[w] = e;
+                if (!onQueue[w]) {
+                    queue.enqueue(w);
+                    onQueue[w] = true;
+                }
+            }
+            if (cost++ % G.V() == 0) {
+                findNegativeCycle();
+            }
+        }
+    }
+
+    public double distTo(int v) {
+        validateVertex(v);
+        if (hasNegativeCycle())
+            throw new UnsupportedOperationException("Negative cost cycle exists");
+        return distTo[v];
+    }
+
+    public boolean hasPathTo(int v) {
+        validateVertex(v);
+        return distTo[v] < Double.POSITIVE_INFINITY;
+    }
+
+    public Iterable<DirectedEdge> pathTo(int v) {
+        validateVertex(v);
+        if (hasNegativeCycle())
+            throw new UnsupportedOperationException("Negative cost cycle exists");
+        if (!hasPathTo(v)) return null;
+        Stack<DirectedEdge> path = new Stack<DirectedEdge>();
+        for (DirectedEdge e = edgeTo[v]; e != null; e = edgeTo[e.from()]) {
+            path.push(e);
+        }
+        return path;
+    }
+
+    private void findNegativeCycle() {
+        int V = edgeTo.length;
+        EdgeWeightedDigraph spt;
+        spt = new EdgeWeightedDigraph(V);
+        for (int v = 0; v < V; v++) {
+            if (edgeTo[v] != null) {
+                spt.addEdge(edgeTo[v]);
+            }
+        }
+
+        EdgeWeightedDirectedCycle cf;
+        cf = new EdgeWeightedDirectedCycle(spt);
+
+        cycle = cf.cycle();
+    }
+
+    private void validateVertex(int v) {
+        int V = distTo.length;
+        if (v < 0 || v >= V)
+            throw new IllegalArgumentException("vertex " + v + " is not between 0 and " + (V - 1));
+    }
+
+    public boolean hasNegativeCycle() {
+        return cycle != null;
+    }
+
+    public Iterable<DirectedEdge> negativeCycle() {
+        return cycle;
+    }
+}
+```
+This implementation of the Bellman-Ford algorithm uses a version of `relax()` that puts vertices whose `distTo[]` value
+changes onto a FIFO queue (avoiding duplicates) and periodically checks for a negative cycle in `edgeTo[]`.
+
+```java
+public class Arbitrage {
+
+    public static void main(String[] args) {
+        int V = StdIn.readInt();
+        String[] name = new String[V];
+        EdgeWeightedDigraph G = new EdgeWeightedDigraph(V);
+        for (int v = 0; v < V; v++) {
+            name[v] = StdIn.readString();
+            for (int w = 0; w < V; w++) {
+                double rate = StdIn.readDouble();
+                DirectedEdge e = new DirectedEdge(v, w, -Math.log(rate));
+                G.addEdge(e);
+            }
+        }
+
+        BellmanFordSP spt = new BellmanFordSP(G, 0);
+        if (spt.hasNegativeCycle()) {
+            double stake = 1000.0;
+            for (DirectedEdge e : spt.negativeCycle()) {
+                StdOut.printf("%10.5f % s ", stake, name[e.from()]);
+                stake *= Math.exp(-e.weight());
+                StdOut.printf("= %10.5f %s\n", stake, name[e.to()]);
+            }
+        } else {
+            StdOut.printf("No arbitrage opportunity");
+        }
+    }
+}
+```
+This `BellmanFordSP` client finds an arbitrage opportunity in a currency exchange table by constructing a 
+complete-graph representation of the exchange table and then using the Bellman-Ford algorithm to find a negative cycle
+in the graph.
+
+The arbitrage problem is a negative-cycle-detection problem in edge-weighted digraphs. Replace each weight by its 
+*logarithm*, negated. With this change, computing path weights by multiplying edge weights in the original problem 
+corresponds to adding them in the transformed problem. Specifically, any product *w<sub>1</sub>w<sub>2</sub> ... 
+w<sub>k</sub>* corresponds to a sum -ln(*w<sub>1</sub>*) - ln(*w<sub>2</sub>*) - ... - ln(*w<sub>k</sub>*). The
+transformed edge weights might be negative or positive, a path from `v` to `w` gives a way of converting from currency
+`v` to currency `w`, and any negative cycle is an arbitrage opportunity.
+
+##### Perspective 
+
+algorithm                      |restriction              |typical<sup>*</sup>|worst case<sup>*</sup>|extra<br>space|sweet spot
+:-----------------------------:|:-----------------------:|:-----------------:|:--------------------:|:------------:|:---------------------:
+*Dijkstra (eager)*             |positive edge<br>weights |*E* log *V*        |*E* log *V*           |*V*           |worst-case<br>guarantee
+*topological sort*             |edge-<br>weighted<br>DAGs|*E* + *V*          |*E* + *V*             |*V*           |optimal for<br>acyclic
+*Bellman-Ford<br>(queue-based)*|no negative<br>cycles    |*E* + *V*          |*E* + *V*             |*V*           |widely applicable
+
+Performance characteristics of shortest-paths algorithms
