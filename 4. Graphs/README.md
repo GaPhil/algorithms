@@ -1296,4 +1296,366 @@ algorithm       |space<sup>*</sup>|time<sup>*</sup>
 
 <sup>*</sup> worst-case order of growth for *V* vertices and *E* edges
 
-Performance characteristics of MST algorithms  
+Performance characteristics of MST algorithms
+
+#### 4.4 Shortest paths
+
+application|vertex      |edge
+:---------:|:----------:|:-------------------:
+*map*      |intersection|road
+*network*  |router      |connection
+*schedule* |job         |precedence constraint
+*arbitrage*|currency    |exchange rate
+
+Typical shortest-paths applications
+
+A *shortest path* fro vertex `s` to vertex `t` in an edge-weighted digraph is a directed path from `s` to `t` with the
+property that no other such path has a lower weight.
+
+##### Properties of shortest paths
+
+* *Paths are directed*
+* *The weights are not necessarily distances*
+* *There may be unreachable vertices*
+* *Paths can repeat vertices and edges*
+* *Shortest paths are (normally) simple*
+* *Shortest paths are not necessarily unique*
+* *Parallel edges and self-loops may be present*
+* *Negative weights introduce complications*
+
+Given an edge-weighted digraph and a designated source vertex `s`, a *shortest-paths tree* for vertex `s` is a subgraph
+containing `s` and all the vertices reachable from `s` that forms a directed tree rooted at `s` such that every tree
+path is a shortest path in the digraph.
+
+##### Edge-weighted digraph data types
+
+`public class DirectedEdge`<br>
+<br>
+`DirectedEdge(int v, int w, double weight)`<br>
+`double weight()` *weight of this edge*<br>
+`int from()` *vertex this edge points from*<br>
+`int to()` *vertex this edge points to*<br>
+`String toString()` *string representation*<br>
+
+Weighted directed-edge API<br>
+
+`public class EdgeWeightedDigraph`<br>
+<br>
+`EdgeWeightedDigraph(int V)` *create a `V`-vertex digraph with 0 edges*<br>
+`EdgeWeightedDigraph(In in)` *create a digraph from input stream `in`*<br>
+`int V()` *number of vertices*<br>
+`int E()` *number of edges*<br>
+`void addEdge(DirectedEdge e)` *add edge `e` to the digraph*<br>
+`Iterable<DirectedEdge> adj(int v)` *all edges leaving vertex `v`*<br>
+`Iterable<DirectedEdge> edges()` *all edges in this digraph*<br>
+`String toString()` *string representation*<br>
+
+Edge-weighted digraph API
+
+```java
+public class DirectedEdge {
+
+    private final int v;                // edge tail
+    private final int w;                // edge head
+    private final double weight;        // edge weight
+
+    public DirectedEdge(int v, int w, double weight) {
+        this.v = v;
+        this.w = w;
+        this.weight = weight;
+    }
+
+    public double weight() {
+        return weight;
+    }
+
+    public int from() {
+        return v;
+    }
+
+    public int to() {
+        return w;
+    }
+
+    public String toString() {
+        return String.format("%d->%d %.2f", v, w, weight);
+    }
+}
+```
+This `DirectedEdge` implementation is simpler than the undirected weighted `Edge` implementation because the two
+vertices are distinguished. Our clients use the idiomatic code `int v = e.to(), w = e.from();` to access a
+`DirectedEdge e`'s two vertices.
+
+```java
+import edu.princeton.cs.algorithms.Bag;
+import edu.princeton.cs.introcs.In;
+
+public class EdgeWeightedDigraph {
+
+    private final int V;                // number of vertices
+    private int E;                      // number of edges
+    private Bag<DirectedEdge>[] adj;     // adjacency list
+
+    public EdgeWeightedDigraph(int V) {
+        this.V = V;
+        this.E = 0;
+        adj = (Bag<DirectedEdge>[]) new Bag[V];
+        for (int v = 0; v < V; v++) {
+            adj[v] = new Bag<DirectedEdge>();
+        }
+    }
+
+    public int V() {
+        return V;
+    }
+
+    public int E() {
+        return E;
+    }
+
+    public void addEdge(DirectedEdge e) {
+        adj[e.from()].add(e);
+        E++;
+    }
+
+    public Iterable<DirectedEdge> adj(int v) {
+        return adj[v];
+    }
+
+    public Iterable<DirectedEdge> edges() {
+        Bag<DirectedEdge> bag = new Bag<DirectedEdge>();
+        for (int v = 0; v < V; v++) {
+            for (DirectedEdge e : adj[v]) {
+                bag.add(e);
+            }
+        }
+        return bag;
+    }
+}
+```
+This `EdgeWeightedDigraph` implementation is an amalgam of `EdgeWeightedGraph` and `Digraph` that maintains a
+vertex-indexed array of bags of `DirectedEdge` objects. As with `Digraph`, every edge appears just once: if an edge
+connects `v` to `w`, it appears in `v`'s adjacency list. Self-loops and parallel edges are allowed.
+
+
+`public class SP`<br>
+<br>
+`SP(EdgeWeightedDigraph G, int s)` *constructor*<br>
+`double distTo(int v)` *distance from `s` to `v`, ∞ if no path*<br>
+`boolean hasPathTo(int v)` *path from `s` to `v`?*<br>
+`Iterable<DirectedEdge> pathTo(int v)` *path from `s` to `v`, `null` if none*<br>
+
+API for shortest-paths implementations
+
+##### Theoretical basis for shortest-paths algorithms
+
+Let *G* be an edge-weighted digraph, with `s` a source vertex in *G* and `distTo[]` a vertex-indexed array of path
+lengths in *G* such that, for all `v` reachable from `s`, the value of `distTo[v]` is the lenght of *some* path from `s`
+to `v` with `distTo[v]` equal to infinity for all `v` not reachable from `s`. These values are the lenghts of *shortest*
+paths if and only if they satisfy `distTo[s] = 0` and `distTo[w] <= distTo[v] + e.weight()` for each edge `e` from `v`
+to `w` (or, in other words, no edge is eligible).
+
+Generic shortest-paths algorithm: Initialize `distTo[s]` to 0 and all other `distTo[]` values to infinity, and proceed
+as follows: *Relax any edge in *G*, continuing until no edge is eligible.* For all vertices `w` reachable from `s`, the
+value of `distTo[w]` after this computation is the length of a shrotest path from `s` to `w` (and `edgeTo[w]` is the
+last edge on such a path).
+
+Relaxing and edge `v->w` always sets `distTo[w]` to the length of some path from `s` (and `edgeTo[w]` to the last edge
+on that path). For any vertex `w` reachable from `s`, some edge on the shortest path to `w` is eligible as long as
+`distTo[w]` remains infinite, so the algorithm continues until the `distTo[]` value of each vertex reachable from `s` is
+the length of some path to that vertex. For any vertex `v` for which the shortest path is well-defined, throughout the
+algorithm `distTo[v]` is the length of some simple path from `s` to `v` and is strictly monotonically decreasing. Thus,
+it can decrease at most a finite number of times (once for each simple path from `s` to `v`).
+
+##### Dijkstra's algorithm
+
+Dijkstra's algorithm solves the single-source shortest-paths problem in edge-weighted digraphs with nonnegative weights.
+If `v` is reachable from the source, every edge `v->w` is relaxed exactly once, when `v` is relaxed, leaving `distTo[w]
+<= distTo[v] +e.weight()`. This inequality holds until the algorithm completes, since `distTo[w]` can only decrease (any
+relaxation can only decrease a `distTo[]` value) and `distTo[v]` never changes (because edge weights are nonnegative and
+we choose the lowest `distTo[]` value at each step, no subsequent relaxation can set any `distTo[]` entry to a lower
+value than `distTo[v]`). Thus, after all vertices reachable from `s` have been added to the tree, the shortest-paths 
+optimality conditions hold.
+
+Dijkstra's algorithm uses extra space proportional to *V* and time proportional to *E* log *V* (in the worst case) to
+solve the single-source shortest paths problem in an edge-weighted digraph with *E* edges and *V* vertices. The number
+of vertices on the priority queue is at most *V*, and there are three vertex-indexed arrays, which implies the space
+bound. The algorithm uses *V insert* operations, *V delete the minimum* operations, and (in the worst case) *E change
+priority* operations. These counts, coupled with the fact that our heap-based implementation of the index priority 
+queue implements all the operations in time proportional to log *V*, imply the time bound.
+
+```java
+import edu.princeton.cs.algorithms.IndexMinPQ;
+import edu.princeton.cs.algorithms.Stack;
+
+public class DijkstraSP {
+
+    private DirectedEdge[] edgeTo;
+    private double[] distTo;
+    private IndexMinPQ<Double> pq;
+
+    public DijkstraSP(EdgeWeightedDigraph G, int s) {
+        edgeTo = new DirectedEdge[G.V()];
+        distTo = new double[G.V()];
+        pq = new IndexMinPQ<Double>(G.V());
+
+        for (int v = 0; v < G.V(); v++) {
+            distTo[v] = Double.POSITIVE_INFINITY;
+        }
+        distTo[s] = 0.0;
+
+        pq.insert(s, 0.0);
+        while (!pq.isEmpty()) {
+            relax(G, pq.delMin());
+        }
+    }
+
+    private void relax(EdgeWeightedDigraph G, int v) {
+        for (DirectedEdge e : G.adj(v)) {
+            int w = e.to();
+            if (distTo[w] > distTo[v] + e.weight()) {
+                distTo[w] = distTo[v] + e.weight();
+                edgeTo[w] = e;
+                if (pq.contains(w)) {
+                    pq.changeKey(w, distTo[w]);
+                } else {
+                    pq.insert(w, distTo[w]);
+                }
+            }
+        }
+    }
+
+    public double distTo(int v) {
+        return distTo[v];
+    }
+
+    public boolean hasPathTo(int v) {
+        return distTo[v] < Double.POSITIVE_INFINITY;
+    }
+
+    public Iterable<DirectedEdge> pathTo(int v) {
+        if (!hasPathTo(v)) {
+            return null;
+        }
+        Stack<DirectedEdge> path = new Stack<DirectedEdge>();
+        for (DirectedEdge e = edgeTo[v]; e != null; e = edgeTo[e.from()]) {
+            path.push(e);
+        }
+        return path;
+    }
+}
+```
+This implementation of Dijkstra's algorithm grows the SPT by adding an edge at a time, always choosing the edge from a
+tree vertex to a non-tree vertex whose destination `w` is closest to `s`.
+
+```java
+public class DijkstraAllPairsSP {
+
+    private DijkstraSP[] all;
+
+    DijkstraAllPairsSP(EdgeWeightedDigraph G) {
+        all = new DijkstraSP[G.V()];
+        for (int v = 0; v < G.V(); v++) {
+            all[v] = new DijkstraSP(G, v);
+        }
+    }
+
+    Iterable<DirectedEdge> path(int s, int t) {
+        return all[s].pathTo(t);
+    }
+
+    double dist(int s, int t) {
+        return all[s].distTo(t);
+    }
+}
+```
+All-pairs shortest paths
+
+##### Acyclic edge-weighted digraphs
+
+By relaxing vertices in topological order, we can solve the singe source shortest-paths problem for edge-weighted DAGs
+in time proportional to *E* + *V*. Every edge `v->w` is realxed exactly once, when `v` is relaxed, leaving `distTo[w] <=
+distTo[v] + e.weight()`. This inequality holds until the algorithm completes, since `distTo[v]` never changes (because
+of the topological order, no edge entering `v` will be processed after `v` is relaxed) and `distTo[w]` can only decrease
+(any relaxation can only decrease a `distTo[]` value). Thus, after all vertices reachable from `s` have been added to
+the tree, the shortest-paths optimality conditions hold. The time bound is immediate: the topological sort takes time
+proportional to *E* + *V*, and the second relaxation pass completes the job by relaxing each edge once, again in time 
+proportional to *E* + *V*.
+
+```java
+import edu.princeton.cs.algorithms.Stack;
+
+public class AcyclicSP {
+
+    public DirectedEdge[] edgeTo;
+    private double[] distTo;
+
+    private AcyclicSP(EdgeWeightedDigraph G, int s) {
+        edgeTo = new DirectedEdge[G.V()];
+        distTo = new double[G.V()];
+
+        for (int v = 0; v < G.V(); v++) {
+            distTo[v] = Double.POSITIVE_INFINITY;
+        }
+        distTo[s] = 0.0;
+
+        Topological top = new Topological(G);
+
+        for (int v : top.order()) {
+            relax(G, v);
+        }
+    }
+
+    private void relax(EdgeWeightedDigraph G, int v) {
+        for (DirectedEdge e : G.adj(v)) {
+            int w = e.to();
+            if (distTo[w] > distTo[v] + e.weight()) {
+                distTo[w] = distTo[v] + e.weight();
+                edgeTo[w] = e;
+            }
+        }
+    }
+
+    public double distTo(int v) {
+        validateVertex(v);
+        return distTo[v];
+    }
+
+    public boolean hasPathTo(int v) {
+        validateVertex(v);
+        return distTo[v] < Double.POSITIVE_INFINITY;
+    }
+
+    public Iterable<DirectedEdge> pathTo(int v) {
+        validateVertex(v);
+        if (!hasPathTo(v)) return null;
+        Stack<DirectedEdge> path = new Stack<DirectedEdge>();
+        for (DirectedEdge e = edgeTo[v]; e != null; e = edgeTo[e.from()]) {
+            path.push(e);
+        }
+        return path;
+    }
+
+    private void validateVertex(int v) {
+        int V = distTo.length;
+        if (v < 0 || v >= V)
+            throw new IllegalArgumentException("vertex " + v + " is not between 0 and " + (V - 1));
+    }
+}
+```
+This shortest-paths implementation for edge-weighted DAGs uses a topological sort (adapted tu use `EdgeWeightedDigraph`
+and `DirectedEdge`) to enable it to relax the vertices in topological order which is all that is needed to compute
+shortest paths.
+
+We solve the longest-paths problem in edge-weighted DAGs in time proportional to *E* + *V*. Given a longest-paths
+problem, create a copy of the given edge-weighted DAG that is identical to the original, except that all edge weights
+are negated. Then the *shortest* path in this copy is the *longest* path in the original. To transform the solution of
+the shortest-paths problem to a solution of the longest-paths problem, negate the weights in the solution. The running
+time is proportional to *E* + *V*.
+
+The *critical path method* for parallel scheduling is to proceed as follows: Create an edge-weighted DAG with a source
+`s`, a sink `t`, and two vertices for each job (a *start* vertex and an *end* vertex). For each job, add an edge from
+its start vertex to its end vertex with weight equal to its duration. For each precedence constraint `v->w`, add a
+zero-weight edge from the end vertex corresponding to `v` to the beginning vertex corresponding to `w`. Also add
+zero-weight edges from the source to each job's start vertex and from each job's end vertex to the sink. Now, schedule
+each job at the time given by the length of its longest path from the source.
