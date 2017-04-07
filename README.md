@@ -61,6 +61,12 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Cycles and DAGs
   - [x] Strong connectivity in digraphs
   - [x] Summary
-- [ ] 4.3 Minimum Spanning Trees
+- [x] 4.3 Minimum Spanning Trees
+  - [x] Underlying principles
+  - [x] Edge-weighted graph data type
+  - [x] Prim's algorithm
+  - [x] Eager version of Prim's algorithm
+  - [x] Kruskal's algorithm
+  - [x] Perspective
 - [ ] 4.4 Shortest Paths
 - [ ] Summary

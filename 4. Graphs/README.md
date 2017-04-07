@@ -909,7 +909,7 @@ problem                                   |solution
 
 Digraph-processing problems addressed in this section
 
-#### 4.3 Undirected graphs
+#### 4.3 Minimum Spanning Trees
 
 Recall that a *spanning tree* of a graph is a connected subgraph with no cycles that includes all the vertices. A 
 *minimum spanning tree* (MST) of an edge weighted graph is a spanning tree whose weight (the sum of the weights of its
@@ -1283,13 +1283,16 @@ This implementation of Kruskal's algorithm uses a queue to hold MST edges, a pri
 examined, and a union-find data structure for identifying ineligible edges. The MST edges are returned to the client in
 increasing order of their weights. 
 
-algorithm       |space| time
-:--------------:|:---:|:----:
-*lazy prim*     |*E*  |*E* log *E*
-*eager prim*    |*V*  |*E* log *V*
-*Kruskal*       |*E*  |*E* log *E*
-*Fredman-Tarjan*|*V*  |*E* + *V* log *V*
-*Chazelle*      |*V*  |*very, very nearly,<br>but not quite E*
-*impossible?*   |*V*  |*E*?
+##### Perspective 
 
-Performance characteristics of MST algorithms
+algorithm       |space<sup>*</sup>|time<sup>*</sup>
+:--------------:|:---------------:|:----:
+*lazy prim*     |*E*              |*E* log *E*
+*eager prim*    |*V*              |*E* log *V*
+*Kruskal*       |*E*              |*E* log *E*
+*Fredman-Tarjan*|*V*              |*E* + *V* log *V*
+*Chazelle*      |*V*              |*very, very nearly,<br>but not quite E*
+*impossible?*   |*V*              |*E*?
+<sup>*</sup> worst-case order of growth for *V* vertices and *E* edges
+
+Performance characteristics of MST algorithms  
