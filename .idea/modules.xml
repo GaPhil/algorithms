@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/1. Fundamentals/1. Fundamentals.iml" filepath="$PROJECT_DIR$/1. Fundamentals/1. Fundamentals.iml" />
       <module fileurl="file://$PROJECT_DIR$/2. Sorting/2. Sorting.iml" filepath="$PROJECT_DIR$/2. Sorting/2. Sorting.iml" />
       <module fileurl="file://$PROJECT_DIR$/3. Searching/3. Searching.iml" filepath="$PROJECT_DIR$/3. Searching/3. Searching.iml" />
       <module fileurl="file://$PROJECT_DIR$/4. Graphs/4. Graphs.iml" filepath="$PROJECT_DIR$/4. Graphs/4. Graphs.iml" />
