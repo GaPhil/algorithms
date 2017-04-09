@@ -113,3 +113,11 @@ children.
  * a complete undirected graph with 6 vertices, how many orientations are there to make it acyclic: 6(6-1)/2=15 edges
  * a Digraph with 6 vertices can be [1,2,3,4,5,6] or [1,2,3,4,6,5] or [1,2,3,6,5,4] etc there are 6! combinations.
  there are n! orientations that make a graph acyclic.
+ 
+ #### General info for part B
+ 
+ * nullifying is used to avoid loitering (i.e. leaving memory that the garbage collection will be unable to reclaim)
+ * an invarient is kept true throughout the execution of the program
+ * the invarient of **maximum-oriented priority queues**: the value in all nodes is great than its two children
+ * a directed graph is said to be *semi-connected* if there exists some path from vertex *a* to *b*, or *b* to *a* or
+ in both directions.

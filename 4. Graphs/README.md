@@ -1437,7 +1437,6 @@ This `EdgeWeightedDigraph` implementation is an amalgam of `EdgeWeightedGraph` a
 vertex-indexed array of bags of `DirectedEdge` objects. As with `Digraph`, every edge appears just once: if an edge
 connects `v` to `w`, it appears in `v`'s adjacency list. Self-loops and parallel edges are allowed.
 
-
 `public class SP`<br>
 <br>
 `SP(EdgeWeightedDigraph G, int s)` *constructor*<br>
