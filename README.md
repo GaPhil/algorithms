@@ -2,6 +2,14 @@
 
 This repository is based on the book by Robert Sedgewick and Kevin Wayne entitled *Algorithms*, fourth edition.
 
+**1. Fundamentals**
+- [x] 1.5 Union-Find
+  - [x] Dynamic connectivity
+  - [x] Implementations
+    * Quick-find
+    * Quick-union
+    * Weighted quick-union
+
 **2. Sorting**
 - [x] 2.1 Elementary Sorts
   - [x] Selectionsort
@@ -70,9 +78,9 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Perspective
 - [x] 4.4 Shortest Paths
   - [x] Properties of shortest paths
-  - [x] Edge-weighted digraph data types
-  - [x] Theoretical basis for shortest-paths algorithms
-  - [x] Dijkstra's algorithm
-  - [x] Acyclic edge-weighted digraphs
-  - [x] Shortest paths in general edge-weighted digraphs
-  - [x] Perspective
+  - [] Edge-weighted digraph data types
+  - [ ] Theoretical basis for shortest-paths algorithms
+  - [ ] Dijkstra's algorithm
+  - [ ] Acyclic edge-weighted digraphs
+  - [ ] Shortest paths in general edge-weighted digraphs
+  - [ ] Perspective
