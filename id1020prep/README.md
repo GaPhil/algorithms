@@ -117,7 +117,7 @@ children.
  #### General info for part B
  
  * nullifying is used to avoid loitering (i.e. leaving memory that the garbage collection will be unable to reclaim)
- * an invarient is kept true throughout the execution of the program
- * the invarient of **maximum-oriented priority queues**: the value in all nodes is great than its two children
+ * an invariant is kept true throughout the execution of the program
+ * the invariant of **maximum-oriented priority queues**: the value in all nodes is great than its two children
  * a directed graph is said to be *semi-connected* if there exists some path from vertex *a* to *b*, or *b* to *a* or
  in both directions.

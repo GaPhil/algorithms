@@ -78,9 +78,9 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Perspective
 - [x] 4.4 Shortest Paths
   - [x] Properties of shortest paths
-  - [] Edge-weighted digraph data types
-  - [ ] Theoretical basis for shortest-paths algorithms
-  - [ ] Dijkstra's algorithm
-  - [ ] Acyclic edge-weighted digraphs
-  - [ ] Shortest paths in general edge-weighted digraphs
-  - [ ] Perspective
+  - [x] Edge-weighted digraph data types
+  - [x] Theoretical basis for shortest-paths algorithms
+  - [x] Dijkstra's algorithm
+  - [x] Acyclic edge-weighted digraphs
+  - [x] Shortest paths in general edge-weighted digraphs
+  - [x] Perspective
