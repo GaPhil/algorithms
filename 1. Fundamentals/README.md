@@ -95,15 +95,19 @@ invariant.
 ###### Quick-find 
 
 *find examines `id[5]` and `id[9]`*
-
-`p` `q` &nbsp; 0 1 2 3 4 5 6 7 8 9 <br>
-&nbsp;5 &nbsp;&nbsp; 9 &nbsp;&nbsp; 1 1 1 8 8 **1** 1 1 8 **8**
+```
+p q   0 1 2 3 4 5 6 7 8 9
+-------------------------
+5 9   1 1 1 8 8 1 1 1 8 8
+```
 
 *union has to change all 1s to 8s*
-
-`p` `q` &nbsp; 0 1 2 3 4 5 6 7 8 9 <br>
-&nbsp;5 &nbsp;&nbsp; 9 &nbsp;&nbsp; 1 1 1 8 8 **1** 1 1 8 **8** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **8** **8** **8** 8 8 **8** **8** **8** 8 8
+```
+p q   0 1 2 3 4 5 6 7 8 9
+-------------------------
+5 9   1 1 1 8 8 1 1 1 8 8
+      8 8 8 8 8 8 8 8 8 8
+```
 
 Quick-find overview
 
