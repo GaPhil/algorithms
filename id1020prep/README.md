@@ -114,7 +114,7 @@ children.
  * a Digraph with 6 vertices can be [1,2,3,4,5,6] or [1,2,3,4,6,5] or [1,2,3,6,5,4] etc there are 6! combinations.
  there are n! orientations that make a graph acyclic.
  
- #### General info for part B
+ #### General info for part II
  
  * nullifying is used to avoid loitering (i.e. leaving memory that the garbage collection will be unable to reclaim)
  * an invariant is kept true throughout the execution of the program
@@ -122,6 +122,67 @@ children.
  * a directed graph is said to be *semi-connected* if there exists some path from vertex *a* to *b*, or *b* to *a* or
  in both directions.
  
+#### 2016-10-28
+
+#### Q 1: Order of growth for functions
+ 
+ * from where to where does the function go?
+ * how big are the steps? (i++ or i * 2)?
+ * check for division / multiplication / addition
+
+#### Q 2: Union find
+
+** note the difference between **'QUICK-FIND', 'QUICK-UNION', 'WEIGHTED QUICK UNION'**
+* draw the graph to find the number of components
+* **QUICK-FIND** (eager approach): 
+  * don't draw the graph for quick find (the number of components can be counted from the array)
+  * Find: check if `p` and `q` have the same id.
+  * Union: to merge components containing `p` and `q`. change all entries whose id equals `id[p]` into `id[q]'
+  * quick-find cost model: initialize = ***N***; union = ***N***; find; **1**
+* **QUICK-UNION** (lazy approach):
+  * **draw the graph for quick-union!!!**
+  * Find: check if `p` and `q` have the same **ROOT**
+  * Union: to merge components containing `p` and `q`. set the id of `p`'s **ROOT** to the id of `q`'s root.
+  * quick-union cost model: initialize = ***N***; union = ***N***; find; ***N***
+  * for find the worst case is ***N*** since the **trees can get too tall**
+* **QUICK-UNION IMPROVEMENTS** (**WEIGHTING**)
+  * modify quick union to **avoid tall trees**
+  * keep track of size of each tree (number of objects)
+  * balance by linking root of smaller tree to root of larger tree (**ALWAYS SMALLER TREE BELOW**)
+  * weighted QU cost model: initialize = ***N***; union ***lg N***; connected/find; ***lg N***
+* **QUICK UNION IMPROVEMENTS** (**WEIGHTING AND PATH COMPRESSION**)
+  * just after computing the root of `p`, set the id of each examined noe to point to the **ROOT**
+  
+  
+#### Q 3: Memory complexity 
+
+* Memory complexity
+  * insertion sort: ~1 (constant)
+  * shell sort: ~1 (constant)
+  * heap sort: ~1 (constant)
+  * mergesort: ~N (linear)
+  * quicksort: ~lg N (logarithmic)
+* insertion sort is good for partially sorted arrays has time complexity ~n
+* quicksort is a bit faster than mergesort and has better memory complexity but is not stable; stability is not so 
+important for primitives --> quicksort; for other objects stability is often wanted --> mergesort is used.
+* if you use quicksort on an array with all equal elements then the **pivot** will be found in the **middle**
+* quicksort with **NO** shuffling has best case ~ N lg N and worst case N <sup>2</sup>
+
+#### Q 4: Binary heap
+
+* **LARGEST ITEM AT TOP OF TREE!!!**
+* **the value of each node is less than or equal to the value of the parent node!!!**
+
+
+#### Q 5: Trees
+* quick union tree does not allow duplicates
+
+#### Q 6: Merge sort
+* follow algorithm
+
+#### Q 7: Hash functions
+* separate chaining has expected case 1 for both search hit and search miss
+
 #### 2016-01-18
 
 #### Q 1: Order of growth for functions
@@ -228,3 +289,5 @@ same key and are duplicate elements)
 * if edge weights are changed *w*(*e*) - 7 then the total weights will be reduced by factor -7 * *e*.
 * it is assumed that negative weights are also allowed
 * so *T* is also a minimum spanning tree of *G'*
+
+ #### General info for part II
