@@ -306,6 +306,41 @@ data structure |advantage                                        |disadvantage
 
 Fundamental data structures
 
+#### 1.4 Analysis of algorithms
+
+##### Scientific model
+
+The very same approach that scientists use to understand the natural world is effective for studying the running time
+of programs:
+* *Observe* some feature of the natural world, generally with precise instruments.
+* *Hypothesize* a model that is consistent with the observations.
+* *Predict* events using the hypothesis.
+* *Verify* the predictions by making further observations.
+* *Validate* by repeating until the hypothesis and observations agree.
+
+##### Mathematical models
+
+We write ~*f*(*n*) to represent any function that, when divided by *f*(*n*), approaches 1 as *n* grows, and we write
+*g*(*n*) ~ *f*(*n*) to indicate that *g*(*n*)/*f*(*n*) approaches 1 as *n* grows.
+
+description |function
+:----------:|:---:
+constant    |1
+logarithmic |log *n*
+linear      |*n*
+linearithmic|*n* log *n*
+quadratic   |*n* <sup>2</sup>
+cubic       |*n* <sup>3</sup>
+exponential |2 <sup>*n*</sup>
+
+Commonly encountered order-of-growth functions
+
+##### Order-of-growth classification
+
+![Typical_orders_of_growth](https://github.com/GaPhil/algorithms/blob/master/1.%20Fundamentals/Typical_orders_of_growth.jpg)
+
+Typical orders of growth
+
 #### 1.5 Union-Find
 
 ##### Dynamic connectivity
