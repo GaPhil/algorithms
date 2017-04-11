@@ -8,10 +8,12 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Implementing collections
   - [x] Linked lists
   - [x] Overview
-- [ ] 1.4 Analysis of algorithms
-  - [ ] Scientific method
-  - [ ] Observations
-  - [ ]
+- [x] 1.4 Analysis of algorithms
+  - [x] Scientific method
+  - [x] Mathematical models
+  - [x] Order-of-growth classification
+  - [x] Coping with dependence on inputs
+  - [x] Memory
 - [x] 1.5 Union-Find
   - [x] Dynamic connectivity
   - [x] Implementations

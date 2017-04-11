@@ -308,7 +308,7 @@ Fundamental data structures
 
 #### 1.4 Analysis of algorithms
 
-##### Scientific model
+##### Scientific method
 
 The very same approach that scientists use to understand the natural world is effective for studying the running time
 of programs:
@@ -340,6 +340,44 @@ Commonly encountered order-of-growth functions
 ![Typical_orders_of_growth](https://github.com/GaPhil/algorithms/blob/master/1.%20Fundamentals/Typical_orders_of_growth.jpg)
 
 Typical orders of growth
+
+description   |function        |2x<br>factor    |10x<br> factor   |predicted time for 10*N*|predicted time for 10*n*<br>on a 10x faster computer
+:------------:|:--------------:|:--------------:|:---------------:|:----------------------:|:---------------------------------------------------:
+*linear*      |*n*             |2               |10               |a day                   |a few hours
+*linearithmic*|*n* log *n*     |2               |10               |a day                   |a few hours
+*quadratic*   |*n* <sup>2</sup>|4               |100              |a few weeks             |a day
+*cubic*       |*n* <sup>3</sup>|8               |1,000            |several months          |a few weeks
+*exponential* |2 <sup>*n*</sup>|2 <sup>*n*</sup>|2 <sup>9*n*</sup>|never                   |never
+
+Predictions on the basis of order of-of-growth functions
+
+##### Coping with dependence on inputs
+
+In the linked-list implementation of `Bag`, `Stack`, and `Queue`, all operations take constant time in the worst case.
+The number of instructions executed for each operation is bounded by a small constant. *Caveat*: This argument depends
+upon the assumption that the Java system creates a new `Node` in constant time.
+
+In the resizing array implementation of `Stack`, the average number of array accesses for any sequence of push and pop
+operations starting from an empty data structure is constant in the worst case. For each push operation that causes the
+array to grow (say from size *n* to size 2*n*), consider the *n*/2 - 1 push operations that most recently caused the 
+stack size to grow to *k*, for *k* from *n*/2 + 2 to *n*. Averaging the 4*n* array accesses to grow the array to size
+2*n* (2*n* array accesses to initialize an array of size 2*n* an 2*n* array accesses to copy the *n* items) with 
+*n*/2 - 1 array accesses (one for each push), we get and average cost of 9 array accesses for each of these *n*/2 - 1
+push operations. Establishing this proposition for any sequence of push and pop operations is more intricate.
+
+##### Memory
+
+type     |bytes
+:-------:|:----:
+`boolean`|1
+`byte`   |1
+`char`   |2
+`int`    |4
+`float`  |4
+`long`   |8
+`double` |8
+
+Typical memory requirements for primitive types
 
 #### 1.5 Union-Find
 
