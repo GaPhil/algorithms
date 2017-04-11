@@ -1,5 +1,311 @@
 ### 1. Fundamentals
 
+#### 1.3 Bags, queues, and stacks
+
+##### APIs
+
+`public class Bag<Item> implements Iterabel<Item>`<br>
+<br>
+`Bag()` *create an empty bag* <br>
+`void add(Item item)` *add and item* <br>
+`boolean isEmpty()` *is the bag empty? <br>
+`int size()` *number of items in the bag* <br>
+Bag
+
+`public class Queue<Item> implements Iterable<Item>`<br>
+<br>
+`Queue()` *create an empty queue* <br>
+`void enqueue(Item item)` *add an item* <br>
+`Item dequeue()` *remove the least recently added item* <br>
+`boolean isEmtpy()` *is the queue empty? <br>
+`int size()` *number of item in the queue <br>
+Queue
+
+`public class Stack<Item> implements Iterable<Item>`<br>
+<br>
+`Stack()` *create an empty stack* <br>
+`void push(Item item)` *add an item* <br>
+`Item pop()` *remove the most recently added item* <br>
+`boolean isEmpty()` *is the stack empty?* <br>
+`int size()` *number of items in the stack* <br>
+Pushdown (LIFO) stack
+
+APIs for fundamental generic iterable collections
+
+##### Implementing collections
+
+Pushdown (LIFO) stack (resizing array implementation)
+```java
+import java.util.Iterator;
+
+public class ResizingArrayStack<Item> implements Iterable<Item> {
+
+    private Item[] a = (Item[]) new Object[1];      // stack of items
+    private int n = 0;                              // number of items
+
+    public boolean isEmpty() {
+        return n == 0;
+    }
+
+    public int size() {
+        return n;
+    }
+
+    private void resize(int max) {
+        // Move stack to a new array of size max.
+        Item[] temp = (Item[]) new Object[max];
+        for (int i = 0; i < n; i++) {
+            temp[i] = a[i];
+        }
+        a = temp;
+    }
+
+    public void push(Item item) {
+        // Add item to top of stack
+        if (n == a.length) {
+            resize(2 * a.length);
+            a[n++] = item;
+        }
+    }
+
+    public Item pop() {
+        // Remove item from top of stack
+        Item item = a[--n];
+        a[n] = null;                                // avoid loitering
+        if (n > 0 && n == a.length / 4) {
+            resize(a.length / 2);
+        }
+        return item;
+    }
+
+    public Iterator<Item> iterator() {
+        return new ReverseArrayIterator();
+    }
+
+    private class ReverseArrayIterator implements Iterator<Item> {
+        // Support LIFO iteration.
+        private int i = n - 1;
+
+        public boolean hasNext() {
+            return i >= 0;
+        }
+
+        public Item next() {
+            return a[i--];
+        }
+
+        public void remove() {
+
+        }
+    }
+}
+```
+This generic, iterable implementation of out `Stack` API is a model for collection ADTs that keep items in an array.
+It resizes the array to keep the array size within a constant factor of the stack size.
+
+##### Linked lists
+
+A *linked list* is  a recursive data structure that is either empty (*null*) or a reference to a *node* having a generic
+item and a reference to a linked list.
+
+Pushdown stack (linked-list implementation)
+```java
+import java.util.Iterator;
+
+public class Stack<Item> implements Iterable<Item> {
+
+    private Node first;             // top of stack (most recently added node)
+    private int n;                  // number of items
+
+    private class Node {
+        // nested class to define nodes
+        Item item;
+        Node next;
+    }
+
+    public boolean isEmpty() {
+        return first == null;
+    }
+
+    public int size() {
+        return n;
+    }
+
+    public void push(Item item) {
+        // Add item to the top of the stack.
+        Node oldfirst = first;
+        first = new Node();
+        first.item = item;
+        first.next = oldfirst;
+        n++;
+    }
+
+    public Item pop() {
+        // Remove item from top of stack.
+        Item item = first.item;
+        first = first.next;
+        n--;
+        return item;
+    }
+
+    public Iterator<Item> iterator() {
+        return new ListIterator();
+    }
+
+    private class ListIterator implements Iterator<Item> {
+        private Node current = first;
+
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        public void remove() {
+
+        }
+
+        public Item next() {
+            Item item = current.item;
+            current = current.next;
+            return item;
+        }
+    }
+}
+```
+This generic `Stack` implementation is based on linked-list data structure. It can be used to create stacks containing 
+any type of data.
+
+FIFO queue
+```java
+import java.util.Iterator;
+
+public class Queue<Item> implements Iterable<Item> {
+
+    private Node first;                 // link to least recently added node
+    private Node last;                  // link to most recently added node
+    private int n;                      // number of items in queue
+
+    private class Node {
+        // nested class to define nodes
+        Item item;
+        Node next;
+    }
+
+    public boolean isEmpty() {
+        return first == null;
+    }
+
+    public int size() {
+        return n;
+    }
+
+    public void enqueue(Item item) {
+        // Add item to the end of the list.
+        Node oldlast = last;
+        last = new Node();
+        last.item = item;
+        last.next = null;
+        if (isEmpty()) {
+            first = last;
+        } else {
+            oldlast.next = last;
+        }
+        n++;
+    }
+
+    public Item dequeue() {
+        // Remove item from the beginning of the list.
+        Item item = first.item;
+        first = first.next;
+        n--;
+        if (isEmpty()) {
+            last = null;
+        }
+        return item;
+    }
+
+    public Iterator<Item> iterator() {
+        return new ListIterator();
+    }
+
+    private class ListIterator implements Iterator<Item> {
+        private Node current = first;
+
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        public void remove() {
+
+        }
+
+        public Item next() {
+            Item item = current.item;
+            current = current.next;
+            return item;
+        }
+    }
+}
+```
+This generic `Queue` implementation is based on a linked-list data structure. It can be used to create queues containing
+any type of data.
+
+Bag
+```java
+import java.util.Iterator;
+
+public class Bag<Item> implements Iterable<Item> {
+
+    private Node first;             // first node in list
+
+    private class Node {
+        Item item;
+        Node next;
+    }
+
+    public void add(Item item) {
+        // same as push() in Stack
+        Node oldfirst = first;
+        first = new Node();
+        first.item = item;
+        first.next = oldfirst;
+    }
+
+    public Iterator<Item> iterator() {
+        return new ListIterator();
+    }
+
+    private class ListIterator implements Iterator<Item> {
+
+        private Node current = first;
+
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        public void remove() {
+
+        }
+
+        public Item next() {
+            Item item = current.item;
+            current = current.next;
+            return item;
+        }
+    }
+}
+```
+This `Bag` implementation maintains a linked list of the item provided in calls to `add()`. The iterator traverses the
+list, maintaining the current node in `current`.
+
+##### Overview
+
+data structure |advantage                                        |disadvantage
+:-------------:|:-----------------------------------------------:|:-------------------------------------:
+*array*        |index provides<br>immediate access<br>to any item|need to know size<br>on initialization
+*linked list*  |uses space<br>proportional to size               |need reference to<br>access an item
+
+Fundamental data structures
+
 #### 1.5 Union-Find
 
 ##### Dynamic connectivity

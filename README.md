@@ -3,6 +3,11 @@
 This repository is based on the book by Robert Sedgewick and Kevin Wayne entitled *Algorithms*, fourth edition.
 
 **1. Fundamentals**
+- [x] 1.3 Bags, queues, and stacks
+  - [x] APIs
+  - [x] Implementing collections
+  - [x] Linked lists
+  - [x] Overview
 - [x] 1.5 Union-Find
   - [x] Dynamic connectivity
   - [x] Implementations
