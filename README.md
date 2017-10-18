@@ -2,6 +2,8 @@
 
 This repository is based on the book by Robert Sedgewick and Kevin Wayne entitled *Algorithms*, fourth edition.
 
+---
+
 **1. Fundamentals**
 - [x] 1.3 Bags, queues, and stacks
   - [x] APIs
@@ -21,6 +23,8 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
     * Quick-union
     * Weighted quick-union
 
+---
+
 **2. Sorting**
 - [x] 2.1 Elementary Sorts
   - [x] Selectionsort
@@ -39,6 +43,8 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Heap priority queue
   - [x] Heapsort
 - [x] Summary
+
+---
 
 **3. Searching**
 - [x] 3.1 Symbol Tables
@@ -62,6 +68,8 @@ This repository is based on the book by Robert Sedgewick and Kevin Wayne entitle
   - [x] Hashing with separate chaining
   - [x] Hashing with linear probing
   - [x] Applications
+
+---
 
 **4. Graphs**
 - [x] 4.1 Undirected Graphs
